@@ -4,71 +4,32 @@ import { useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
 export default function AddCategoryForm() {
-  const [name, setName] =
-    useState("");
+  const [name, setName] = useState("");
 
   async function handleAdd() {
     if (!name.trim()) return;
-
-    const { error } =
-      await supabase
-        .from("categories")
-        .insert({
-          name,
-        });
-
+    const { error } = await supabase.from("categories").insert({ name });
     if (error) {
       alert(error.message);
       return;
     }
-
     location.reload();
   }
 
   return (
-    <div
-      className="
-      bg-white
-      p-6
-      rounded-2xl
-      shadow
-      mb-8
-      "
-    >
-      <h2
-        className="
-        text-2xl
-        font-bold
-        mb-4
-        "
-      >
+    <div className="glass rounded-2xl p-6 shadow-luxe mb-8">
+      <h2 className="font-display text-2xl font-bold text-cream mb-4">
         Add Category
       </h2>
-
       <input
         value={name}
-        onChange={(e) =>
-          setName(e.target.value)
-        }
+        onChange={(e) => setName(e.target.value)}
         placeholder="Category Name"
-        className="
-        w-full
-        border
-        p-3
-        rounded-xl
-        mb-4
-        "
+        className="w-full glass-light rounded-xl border-0 px-4 py-3 text-cream placeholder:text-cream/40 focus:ring-1 focus:ring-gold/40 outline-none transition mb-4"
       />
-
       <button
         onClick={handleAdd}
-        className="
-        bg-green-600
-        text-white
-        px-6
-        py-3
-        rounded-xl
-        "
+        className="bg-gold-gradient text-ink px-6 py-3 rounded-xl font-semibold hover:shadow-gold-glow transition-all"
       >
         Add Category
       </button>

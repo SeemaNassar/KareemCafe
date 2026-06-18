@@ -10,37 +10,19 @@ export default function DeleteCategoryButton({
   name: string;
 }) {
   async function handleDelete() {
-    const confirmed =
-      confirm(
-        `Delete ${name} and all its products?`
-      );
-
-    if (!confirmed) return;
-
-    const { error } =
-      await supabase
-        .from("categories")
-        .delete()
-        .eq("id", id);
-
+    if (!confirm(`Delete ${name} and all its products?`)) return;
+    const { error } = await supabase.from("categories").delete().eq("id", id);
     if (error) {
       alert(error.message);
       return;
     }
-
     location.reload();
   }
 
   return (
     <button
       onClick={handleDelete}
-      className="
-      bg-red-500
-      text-white
-      px-4
-      py-2
-      rounded-xl
-      "
+      className="bg-error/20 hover:bg-error/30 text-error px-4 py-2 rounded-xl text-sm font-medium transition-colors"
     >
       Delete
     </button>

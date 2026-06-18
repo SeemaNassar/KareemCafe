@@ -3,271 +3,118 @@
 import { useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
-export default function EditButton({
-  product,
-}: {
-  product: any;
-}) {
-  const [open, setOpen] =
-    useState(false);
+export default function EditButton({ product }: { product: any }) {
+  const [open, setOpen] = useState(false);
+  const [name, setName] = useState(product.name);
+  const [description, setDescription] = useState(product.description);
+  const [price, setPrice] = useState(product.price);
+  const [featured, setFeatured] = useState(product.featured);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
-  const [name, setName] =
-    useState(product.name);
-
-  const [description, setDescription] =
-    useState(product.description);
-
-  const [price, setPrice] =
-    useState(product.price);
-
-  const [featured, setFeatured] =
-    useState(product.featured);
-
-  const [imageFile, setImageFile] =
-    useState<File | null>(null);
-
-    async function save() {
-      let imageUrl = product.image;
-    
-      if (imageFile) {
-        // حذف الصورة القديمة أولاً
-        if (product.image) {
-          const oldPath = product.image.split(
-            "/storage/v1/object/public/cafe-images/"
-          )[1];
-    
-          console.log("Deleting:", oldPath);
-    
-          const { error: deleteError } =
-            await supabase.storage
-              .from("cafe-images")
-              .remove([oldPath]);
-    
-          if (deleteError) {
-            console.error(deleteError);
-          }
-        }
-    
-        // رفع الصورة الجديدة
-        const fileName =
-          `${Date.now()}-${imageFile.name}`;
-    
-        const { error: uploadError } =
-          await supabase.storage
-            .from("cafe-images")
-            .upload(
-              fileName,
-              imageFile,
-              {
-                upsert: true,
-              }
-            );
-    
-        if (uploadError) {
-          alert(uploadError.message);
-          return;
-        }
-    
-        const {
-          data: { publicUrl },
-        } = supabase.storage
-          .from("cafe-images")
-          .getPublicUrl(fileName);
-    
-        imageUrl = publicUrl;
+  async function save() {
+    let imageUrl = product.image;
+    if (imageFile) {
+      if (product.image) {
+        const oldPath = product.image.split(
+          "/storage/v1/object/public/cafe-images/"
+        )[1];
+        await supabase.storage.from("cafe-images").remove([oldPath]);
       }
-    
-      const { error } =
-        await supabase
-          .from("products")
-          .update({
-            name,
-            description,
-            price,
-            featured,
-            image: imageUrl,
-          })
-          .eq("id", product.id);
-    
-      if (error) {
-        alert(error.message);
+      const fileName = `${Date.now()}-${imageFile.name}`;
+      const { error: uploadError } = await supabase.storage
+        .from("cafe-images")
+        .upload(fileName, imageFile, { upsert: true });
+      if (uploadError) {
+        alert(uploadError.message);
         return;
       }
-    
-      alert("Updated");
-      location.reload();
+      const {
+        data: { publicUrl },
+      } = supabase.storage.from("cafe-images").getPublicUrl(fileName);
+      imageUrl = publicUrl;
     }
 
-  function getFilePathFromUrl(url: string) {
-    return url.split("/cafe-images/")[1];
+    const { error } = await supabase
+      .from("products")
+      .update({ name, description, price, featured, image: imageUrl })
+      .eq("id", product.id);
+    if (error) {
+      alert(error.message);
+      return;
+    }
+    location.reload();
   }
+
+  const inputClass =
+    "w-full glass-light rounded-xl border-0 px-4 py-3 text-cream placeholder:text-cream/40 focus:ring-1 focus:ring-gold/40 outline-none transition mb-3 bg-transparent";
 
   return (
     <>
       <button
-        onClick={() =>
-          setOpen(true)
-        }
-        className="
-        bg-amber-500
-        text-white
-        px-4
-        py-2
-        rounded-xl
-        "
+        onClick={() => setOpen(true)}
+        className="bg-gold/20 hover:bg-gold/30 text-gold px-4 py-2 rounded-xl text-sm font-medium transition-colors"
       >
         Edit
       </button>
-
       {open && (
         <div
-          className="
-          fixed
-          inset-0
-          bg-black/50
-          flex
-          items-center
-          justify-center
-          z-50
-          "
+          className="fixed inset-0 bg-ink/80 backdrop-blur-md grid place-items-center z-50 p-4"
+          onClick={() => setOpen(false)}
         >
           <div
-            className="
-            bg-white
-            p-8
-            rounded-3xl
-            w-[500px]
-            "
+            className="glass-dark rounded-3xl p-8 w-full max-w-lg shadow-luxe ring-gold"
+            onClick={(e) => e.stopPropagation()}
           >
-            <h2
-              className="
-              text-2xl
-              font-bold
-              mb-5
-              "
-            >
+            <h2 className="font-display text-2xl font-bold text-cream mb-5">
               Edit Product
             </h2>
-            <img
+            {product.image && (
+              <img
                 src={product.image}
                 alt={product.name}
-                className="
-                    w-full
-                    h-48
-                    object-cover
-                    rounded-xl
-                    mb-4
-                "
-                />
+                className="w-full h-48 object-cover rounded-xl mb-4 ring-1 ring-gold/20"
+              />
+            )}
             <input
               value={name}
-              onChange={(e) =>
-                setName(
-                  e.target.value
-                )
-              }
-              className="
-              w-full
-              border
-              p-3
-              rounded-xl
-              mb-3
-              "
+              onChange={(e) => setName(e.target.value)}
+              className={inputClass}
             />
-
             <textarea
               value={description}
-              onChange={(e) =>
-                setDescription(
-                  e.target.value
-                )
-              }
-              className="
-              w-full
-              border
-              p-3
-              rounded-xl
-              mb-3
-              "
+              onChange={(e) => setDescription(e.target.value)}
+              className={inputClass}
             />
-
             <input
               type="number"
               value={price}
-              onChange={(e) =>
-                setPrice(
-                  Number(
-                    e.target.value
-                  )
-                )
-              }
-              className="
-              w-full
-              border
-              p-3
-              rounded-xl
-              mb-3
-              "
+              onChange={(e) => setPrice(Number(e.target.value))}
+              className={inputClass}
             />
-
-            <label
-              className="
-              flex
-              gap-2
-              mb-5
-              "
-            >
+            <label className="flex items-center gap-2 mb-5 text-cream/70">
               <input
                 type="checkbox"
                 checked={featured}
-                onChange={(e) =>
-                  setFeatured(
-                    e.target.checked
-                  )
-                }
+                onChange={(e) => setFeatured(e.target.checked)}
+                className="accent-gold"
               />
-
               Featured Product
             </label>
-
             <input
-                type="file"
-                onChange={(e) =>
-                    setImageFile(
-                    e.target.files?.[0] || null
-                    )
-                }
-                className="mb-4"
-                />
-            <div
-              className="
-              flex
-              gap-3
-              "
-            >
+              type="file"
+              onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+              className="mb-4 text-cream/70 file:mr-4 file:px-4 file:py-2 file:rounded-lg file:border-0 file:bg-gold-gradient file:text-ink file:font-semibold"
+            />
+            <div className="flex gap-3">
               <button
                 onClick={save}
-                className="
-                bg-green-500
-                text-white
-                px-5
-                py-3
-                rounded-xl
-                "
+                className="bg-gold-gradient text-ink px-5 py-3 rounded-xl font-semibold hover:shadow-gold-glow transition-all"
               >
                 Save
               </button>
-
               <button
-                onClick={() =>
-                  setOpen(false)
-                }
-                className="
-                bg-gray-300
-                px-5
-                py-3
-                rounded-xl
-                "
+                onClick={() => setOpen(false)}
+                className="glass-light text-cream/70 px-5 py-3 rounded-xl hover:text-cream transition-colors"
               >
                 Cancel
               </button>

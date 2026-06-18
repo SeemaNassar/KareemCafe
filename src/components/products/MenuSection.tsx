@@ -1,21 +1,22 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import ProductCard from "./ProductCard";
-
-type Category = {
-  id: number;
-  name: string;
-};
 
 type Product = {
   id: number;
   name: string;
-  description: string;
+  description: string | null;
   price: number;
   image: string | null;
-  featured: boolean;
+  featured?: boolean | null;
   category_id: number | null;
+};
+
+type Category = {
+  id: number;
+  name: string;
 };
 
 export default function MenuSection({
@@ -25,85 +26,84 @@ export default function MenuSection({
   products: Product[];
   categories: Category[];
 }) {
-  const [selectedCategory, setSelectedCategory] =
-    useState<number | null>(null);
+  const [selected, setSelected] = useState<number | null>(null);
 
-  const filteredProducts =
-    selectedCategory === null
+  const filtered =
+    selected === null
       ? products
-      : products.filter(
-          (product) =>
-            product.category_id ===
-            selectedCategory
-        );
+      : products.filter((p) => p.category_id === selected);
+
   return (
-    <>
-      <div
-        className="
-        flex
-        justify-center
-        gap-4
-        mb-16
-        flex-wrap
-        "
-      >
-        <button
-          onClick={() =>
-            setSelectedCategory(null)
-          }
-          className={`
-          px-5
-          py-2
-          rounded-full
-          transition
-          ${
-            selectedCategory === null
-              ? "bg-[#3A2A22] text-white"
-              : "bg-white"
-          }
-        `}
-        >
-          All
-        </button>
-
-        {categories.map((category) => (
-          <button
-            key={category.id}
-            onClick={() =>
-              setSelectedCategory(category.id)
-            }
-            className={`
-            px-5
-            py-2
-            rounded-full
-            transition
-            ${
-              selectedCategory === category.id
-                ? "bg-[#3A2A22] text-white"
-                : "bg-white hover:bg-[#C8A97E]"
-            }
-          `}
-          >
-            {category.name}
-          </button>
-        ))}
-      </div>
-
-      <div
-        className="
-        grid
-        md:grid-cols-2
-        lg:grid-cols-3
-        gap-8
-        "
-      >
-        {filteredProducts.map((product) => (
-          <ProductCard
-            key={product.id}
-            product={product}
+    <div>
+      <div className="flex flex-wrap justify-center gap-3 mb-14">
+        <CategoryPill
+          active={selected === null}
+          onClick={() => setSelected(null)}
+          label="All"
+        />
+        {categories.map((c) => (
+          <CategoryPill
+            key={c.id}
+            active={selected === c.id}
+            onClick={() => setSelected(c.id)}
+            label={c.name}
           />
         ))}
       </div>
-    </>
+
+      <motion.div
+        layout
+        className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+      >
+        <AnimatePresence mode="popLayout">
+          {filtered.map((product) => (
+            <motion.div
+              key={product.id}
+              layout
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <ProductCard product={product} />
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </motion.div>
+
+      {filtered.length === 0 && (
+        <div className="text-center text-cream/40 py-20">
+          No items in this category yet.
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CategoryPill({
+  active,
+  onClick,
+  label,
+}: {
+  active: boolean;
+  onClick: () => void;
+  label: string;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      className={`relative px-6 py-2.5 rounded-full text-sm font-medium tracking-wide transition-colors duration-300 ${
+        active ? "text-ink" : "text-cream/70 hover:text-cream"
+      }`}
+    >
+      {active && (
+        <motion.span
+          layoutId="active-pill"
+          className="absolute inset-0 rounded-full bg-gold-gradient shadow-gold-glow"
+          transition={{ type: "spring", stiffness: 400, damping: 32 }}
+        />
+      )}
+      <span className="relative z-10">{label}</span>
+    </button>
   );
 }

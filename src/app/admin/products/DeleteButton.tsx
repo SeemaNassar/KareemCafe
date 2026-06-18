@@ -10,56 +10,23 @@ export default function DeleteButton({
   image: string | null;
 }) {
   async function handleDelete() {
-    const confirmed = confirm(
-      "Delete this product?"
-    );
-
-    if (!confirmed) return;
-
-    // حذف الصورة من Storage
+    if (!confirm("Delete this product?")) return;
     if (image) {
-      const path = image.split(
-        "/storage/v1/object/public/cafe-images/"
-      )[1];
-
-      const { error: storageError } =
-        await supabase.storage
-          .from("cafe-images")
-          .remove([path]);
-
-      if (storageError) {
-        console.error(
-          "Storage Delete Error:",
-          storageError
-        );
-      }
+      const path = image.split("/storage/v1/object/public/cafe-images/")[1];
+      await supabase.storage.from("cafe-images").remove([path]);
     }
-
-    // حذف المنتج من Database
-    const { error } = await supabase
-      .from("products")
-      .delete()
-      .eq("id", id);
-
+    const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) {
       alert(error.message);
       return;
     }
-
     location.reload();
   }
 
   return (
     <button
       onClick={handleDelete}
-      className="
-      bg-red-500
-      hover:bg-red-600
-      text-white
-      px-4
-      py-2
-      rounded-xl
-      "
+      className="bg-error/20 hover:bg-error/30 text-error px-4 py-2 rounded-xl text-sm font-medium transition-colors"
     >
       Delete
     </button>

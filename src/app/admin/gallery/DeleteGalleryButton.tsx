@@ -2,46 +2,21 @@
 
 import { supabase } from "../../../lib/supabase";
 
-export default function DeleteGalleryButton({
-  image,
-}: {
-  image: any;
-}) {
+export default function DeleteGalleryButton({ image }: { image: any }) {
   async function remove() {
-    if (
-      !confirm(
-        "Delete image?"
-      )
-    )
-      return;
-
-    const path =
-      image.image.split(
-        "/storage/v1/object/public/cafe-images/"
-      )[1];
-
-    await supabase.storage
-      .from("cafe-images")
-      .remove([path]);
-
-    await supabase
-      .from("gallery")
-      .delete()
-      .eq("id", image.id);
-
+    if (!confirm("Delete image?")) return;
+    const path = image.image.split(
+      "/storage/v1/object/public/cafe-images/"
+    )[1];
+    await supabase.storage.from("cafe-images").remove([path]);
+    await supabase.from("gallery").delete().eq("id", image.id);
     location.reload();
   }
 
   return (
     <button
       onClick={remove}
-      className="
-      bg-red-500
-      text-white
-      px-4
-      py-2
-      rounded-xl
-      "
+      className="bg-error/20 hover:bg-error/30 text-error px-4 py-2 rounded-xl text-sm font-medium transition-colors"
     >
       Delete
     </button>

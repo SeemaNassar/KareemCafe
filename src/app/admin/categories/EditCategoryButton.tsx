@@ -3,106 +3,50 @@
 import { useState } from "react";
 import { supabase } from "../../../lib/supabase";
 
-export default function EditCategoryButton({
-  category,
-}: {
-  category: any;
-}) {
-  const [name, setName] =
-    useState(category.name);
-
-  const [open, setOpen] =
-    useState(false);
+export default function EditCategoryButton({ category }: { category: any }) {
+  const [name, setName] = useState(category.name);
+  const [open, setOpen] = useState(false);
 
   async function save() {
-    const { error } =
-      await supabase
-        .from("categories")
-        .update({
-          name,
-        })
-        .eq("id", category.id);
-
+    const { error } = await supabase
+      .from("categories")
+      .update({ name })
+      .eq("id", category.id);
     if (error) {
       alert(error.message);
       return;
     }
-
     location.reload();
   }
 
   return (
     <>
       <button
-        onClick={() =>
-          setOpen(true)
-        }
-        className="
-        bg-amber-500
-        text-white
-        px-4
-        py-2
-        rounded-xl
-        "
+        onClick={() => setOpen(true)}
+        className="bg-gold/20 hover:bg-gold/30 text-gold px-4 py-2 rounded-xl text-sm font-medium transition-colors"
       >
         Edit
       </button>
-
       {open && (
         <div
-          className="
-          fixed
-          inset-0
-          bg-black/50
-          flex
-          items-center
-          justify-center
-          z-50
-          "
+          className="fixed inset-0 bg-ink/80 backdrop-blur-md grid place-items-center z-50 p-4"
+          onClick={() => setOpen(false)}
         >
           <div
-            className="
-            bg-white
-            p-8
-            rounded-3xl
-            w-[450px]
-            "
+            className="glass-dark rounded-3xl p-8 w-full max-w-md shadow-luxe ring-gold"
+            onClick={(e) => e.stopPropagation()}
           >
-            <h2
-              className="
-              text-2xl
-              font-bold
-              mb-4
-              "
-            >
+            <h2 className="font-display text-2xl font-bold text-cream mb-4">
               Edit Category
             </h2>
-
             <input
               value={name}
-              onChange={(e) =>
-                setName(
-                  e.target.value
-                )
-              }
-              className="
-              w-full
-              border
-              p-3
-              rounded-xl
-              mb-4
-              "
+              onChange={(e) => setName(e.target.value)}
+              className="w-full glass-light rounded-xl border-0 px-4 py-3 text-cream focus:ring-1 focus:ring-gold/40 outline-none transition mb-4"
             />
-
             <button
               onClick={save}
-              className="
-              bg-green-600
-              text-white
-              px-6
-              py-3
-              rounded-xl
-              "
+              className="bg-gold-gradient text-ink px-6 py-3 rounded-xl font-semibold hover:shadow-gold-glow transition-all"
             >
               Save
             </button>
