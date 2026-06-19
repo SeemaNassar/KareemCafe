@@ -1,10 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { supabase } from "../../../lib/supabase";
+import { supabase } from "../../../lib/supabase-browser";
+import { uploadImage } from "../../../utils/storage";
+import type { Category } from "../../../types";
 
 export default function AddProductForm() {
-  const [categories, setCategories] = useState<any[]>([]);
+  const [categories, setCategories] = useState<Category[]>([]);
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [price, setPrice] = useState("");
@@ -24,17 +26,13 @@ export default function AddProductForm() {
       alert("Select image");
       return;
     }
-    const fileName = `${Date.now()}-${imageFile.name}`;
-    const { error: uploadError } = await supabase.storage
-      .from("cafe-images")
-      .upload(fileName, imageFile, { upsert: true });
-    if (uploadError) {
-      alert(uploadError.message);
+    let publicUrl: string;
+    try {
+      publicUrl = await uploadImage(imageFile);
+    } catch (err) {
+      alert((err as Error).message);
       return;
     }
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("cafe-images").getPublicUrl(fileName);
 
     const { error } = await supabase.from("products").insert({
       name,

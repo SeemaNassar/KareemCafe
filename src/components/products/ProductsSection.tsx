@@ -1,42 +1,66 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import { motion } from "framer-motion";
-import { supabase } from "../../lib/supabase";
-import { useRealtimeQuery } from "../../hooks/useRealtimeQuery";
 import { StaggerGroup } from "../ui/Reveal";
 import { fadeUp } from "../../lib/animations";
 import SectionHeading from "../ui/SectionHeading";
-import ProductCard from "./ProductCard";
+import { ProductCard } from "./ProductCard";
 import MenuSection from "./MenuSection";
+import { useRealtimeQuery } from "../../hooks/useRealtimeQuery";
+import { supabase } from "../../lib/supabase-browser";
+import type { Product, Category, QueryResult } from "../../types";
 
-type Product = {
-  id: number;
-  name: string;
-  description: string | null;
-  price: number;
-  image: string | null;
-  featured: boolean | null;
-  category_id: number | null;
+type Props = {
+  initialProducts: Product[];
+  initialCategories: Category[];
 };
 
-type Category = {
-  id: number;
-  name: string;
-};
+export default function ProductsSection({
+  initialProducts,
+  initialCategories,
+}: Props) {
+  const [products, setProducts] = useState<Product[]>(initialProducts);
+  const [categories, setCategories] =
+    useState<Category[]>(initialCategories);
 
-export default function ProductsSection() {
-  const { data: products } = useRealtimeQuery<Product[]>("products", () =>
-    supabase.from("products").select("*").order("id", { ascending: false })
+  const fetchProducts = useCallback(async (): Promise<
+    QueryResult<Product[]>
+  > => {
+    const { data, error } = await supabase
+      .from("products")
+      .select("*")
+      .order("id", { ascending: false });
+    return { data: (data as Product[]) ?? null, error: error as Error | null };
+  }, []);
+
+  const fetchCategories = useCallback(async (): Promise<
+    QueryResult<Category[]>
+  > => {
+    const { data, error } = await supabase
+      .from("categories")
+      .select("*")
+      .order("id");
+    return {
+      data: (data as Category[]) ?? null,
+      error: error as Error | null,
+    };
+  }, []);
+
+  const { data: rtProducts } = useRealtimeQuery<Product[]>(
+    "products",
+    fetchProducts
+  );
+  const { data: rtCategories } = useRealtimeQuery<Category[]>(
+    "categories",
+    fetchCategories
   );
 
-  const { data: categories } = useRealtimeQuery<Category[]>("categories", () =>
-    supabase.from("categories").select("*").order("id")
-  );
+  const currentProducts = rtProducts ?? products;
+  const currentCategories = rtCategories ?? categories;
 
-  const list = products ?? [];
-  const cats = categories ?? [];
-  const featured = list.filter((p) => p.featured);
-  const regular = list.filter((p) => !p.featured);
+  const featured = currentProducts.filter((p) => p.featured);
+  const regular = currentProducts.filter((p) => !p.featured);
 
   return (
     <section
@@ -49,7 +73,6 @@ export default function ProductsSection() {
       <div className="relative max-w-7xl mx-auto">
         <SectionHeading eyebrow="Signature Craft" title="Our Menu" />
 
-        {/* Featured */}
         {featured.length > 0 && (
           <div className="mt-16">
             <StaggerGroup className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -62,12 +85,14 @@ export default function ProductsSection() {
           </div>
         )}
 
-        {/* Full menu */}
         <div className="mt-20">
           <h3 className="font-display text-3xl md:text-4xl font-semibold text-cream mb-10 text-center">
             Full Menu
           </h3>
-          <MenuSection products={regular} categories={cats} />
+          <MenuSection
+            initialProducts={regular}
+            initialCategories={currentCategories}
+          />
         </div>
       </div>
     </section>

@@ -1,16 +1,13 @@
 "use client";
 
-import { supabase } from "../../../lib/supabase";
+import { supabase } from "../../../lib/supabase-browser";
+import { removeImageByUrl } from "../../../utils/storage";
+import type { Offer } from "../../../types";
 
-export default function DeleteOfferButton({ offer }: { offer: any }) {
+export default function DeleteOfferButton({ offer }: { offer: Offer }) {
   async function remove() {
     if (!confirm("Delete offer?")) return;
-    if (offer.image) {
-      const path = offer.image.split(
-        "/storage/v1/object/public/cafe-images/"
-      )[1];
-      await supabase.storage.from("cafe-images").remove([path]);
-    }
+    await removeImageByUrl(offer.image);
     await supabase.from("offers").delete().eq("id", offer.id);
     location.reload();
   }

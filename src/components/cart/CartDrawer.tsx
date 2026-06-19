@@ -2,34 +2,47 @@
 
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 import { X, Plus, Minus, Trash2, Truck, Store } from "lucide-react";
+import { useShallow } from "zustand/react/shallow";
 import { useCartStore } from "../../store/cartStore";
+import {
+  DELIVERY_FEE,
+  totalAmount,
+  buildWhatsAppOrderLink,
+} from "../../utils/cart";
+
+type OrderType = "delivery" | "pickup";
+const WHATSAPP_NUMBER = "970594650848";
 
 export default function CartDrawer() {
-  const items = useCartStore((s) => s.items);
-  const isOpen = useCartStore((s) => s.isOpen);
-  const closeCart = useCartStore((s) => s.closeCart);
-  const increase = useCartStore((s) => s.increase);
-  const decrease = useCartStore((s) => s.decrease);
-  const removeItem = useCartStore((s) => s.removeItem);
+  const { items, isOpen, closeCart, increase, decrease, removeItem } =
+    useCartStore(
+      useShallow((s) => ({
+        items: s.items,
+        isOpen: s.isOpen,
+        closeCart: s.closeCart,
+        increase: s.increase,
+        decrease: s.decrease,
+        removeItem: s.removeItem,
+      }))
+    );
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
-  const [orderType, setOrderType] = useState<"delivery" | "pickup">("delivery");
+  const [orderType, setOrderType] = useState<OrderType>("delivery");
 
-  const deliveryFee = orderType === "delivery" ? 5 : 0;
-  const total = items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  const finalTotal = total + deliveryFee;
+  const deliveryFee = orderType === "delivery" ? DELIVERY_FEE : 0;
+  const total = totalAmount(items);
+  const final = total + deliveryFee;
 
-  const whatsappText = encodeURIComponent(
-    `طريقة الاستلام:\n${orderType === "delivery" ? "توصيل" : "استلام من المحل"}\nالاسم: ${name}\nالهاتف: ${phone}\nالعنوان: ${address}\n\nالطلبات:\n${items
-      .map((i) => `${i.name} x${i.quantity}`)
-      .join("\n")}\n\nملاحظات:\n${notes}\n\nالمجموع ₪${total}\nرسوم التوصيل ₪${deliveryFee}\nالإجمالي ₪${finalTotal}`
+  const whatsappLink = buildWhatsAppOrderLink(
+    items,
+    orderType,
+    { name, phone, address, notes },
+    WHATSAPP_NUMBER
   );
 
   return (
@@ -52,7 +65,6 @@ export default function CartDrawer() {
             transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
             className="fixed top-0 right-0 z-50 h-screen w-full sm:w-[440px] glass-dark flex flex-col border-l border-gold/15"
           >
-            {/* Header */}
             <div className="flex items-center justify-between p-6 border-b border-gold/10">
               <div>
                 <span className="text-xs uppercase tracking-[0.3em] text-gold">
@@ -71,7 +83,6 @@ export default function CartDrawer() {
               </button>
             </div>
 
-            {/* Body */}
             <div className="flex-1 overflow-y-auto p-6 space-y-5">
               {items.length === 0 ? (
                 <div className="grid place-items-center h-48 text-center">
@@ -96,11 +107,18 @@ export default function CartDrawer() {
                       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
                       className="glass-light rounded-2xl p-4 flex gap-4"
                     >
-                      <img
-                        src={item.image || undefined}
-                        alt={item.name}
-                        className="w-20 h-20 rounded-xl object-cover ring-1 ring-gold/20"
-                      />
+                      <div className="relative w-20 h-20 rounded-xl overflow-hidden ring-1 ring-gold/20 shrink-0">
+                        <Image
+                          src={
+                            item.image ||
+                            "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085"
+                          }
+                          alt={item.name}
+                          fill
+                          sizes="80px"
+                          className="object-cover"
+                        />
+                      </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-cream truncate">
                           {item.name}
@@ -201,7 +219,6 @@ export default function CartDrawer() {
               )}
             </div>
 
-            {/* Footer */}
             {items.length > 0 && (
               <div className="p-6 border-t border-gold/10 glass-dark space-y-4">
                 <div className="space-y-2 text-sm">
@@ -218,12 +235,12 @@ export default function CartDrawer() {
                       الإجمالي
                     </span>
                     <span className="font-display text-xl font-bold text-gold-gradient tabular-nums">
-                      ₪{finalTotal.toFixed(0)}
+                      ₪{final.toFixed(0)}
                     </span>
                   </div>
                 </div>
                 <a
-                  href={`https://wa.me/970594650848?text=${whatsappText}`}
+                  href={whatsappLink}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="block w-full text-center bg-green-600 hover:bg-green-500 text-cream py-4 rounded-xl font-semibold transition-all duration-300 hover:-translate-y-0.5 shadow-lg"

@@ -1,13 +1,12 @@
-import { supabase } from "../../../lib/supabase";
+import { fetchCategories } from "../../../services/home";
 import AddCategoryForm from "./AddCategoryForm";
 import EditCategoryButton from "./EditCategoryButton";
 import DeleteCategoryButton from "./DeleteCategoryButton";
 
+export const dynamic = "force-dynamic";
+
 export default async function CategoriesPage() {
-  const { data: categories } = await supabase
-    .from("categories")
-    .select("*")
-    .order("id");
+  const categories = await fetchCategories();
 
   return (
     <div className="min-h-screen bg-ink p-8 md:p-12 text-cream">
@@ -24,7 +23,7 @@ export default async function CategoriesPage() {
             </tr>
           </thead>
           <tbody>
-            {categories?.map((category) => (
+            {categories.map((category) => (
               <tr
                 key={category.id}
                 className="border-b border-gold/10 hover:bg-gold/5 transition-colors"

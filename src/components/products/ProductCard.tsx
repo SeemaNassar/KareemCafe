@@ -1,19 +1,15 @@
 "use client";
 
+import { memo } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 import { Plus, Star } from "lucide-react";
 import { useCartStore } from "../../store/cartStore";
+import type { ProductSummary } from "../../types";
 
-export type Product = {
-  id: number;
-  name: string;
-  description: string | null;
-  price: number;
-  image: string | null;
-  featured?: boolean | null;
-};
+type Props = { product: ProductSummary };
 
-export default function ProductCard({ product }: { product: Product }) {
+function ProductCardBase({ product }: Props) {
   const addItem = useCartStore((s) => s.addItem);
 
   return (
@@ -23,16 +19,18 @@ export default function ProductCard({ product }: { product: Product }) {
       className="group relative overflow-hidden rounded-[1.75rem] glass shadow-luxe flex flex-col"
     >
       <div className="relative aspect-[4/3] overflow-hidden">
-        <img
+        <Image
           src={
             product.image ||
             "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085"
           }
           alt={product.name}
+          fill
+          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
           loading="lazy"
-          className="h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-110"
+          className="object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-110"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent pointer-events-none" />
 
         {product.featured && (
           <div className="absolute top-4 left-4 flex items-center gap-1.5 glass-dark px-3 py-1.5 rounded-full text-xs font-semibold text-gold">
@@ -75,3 +73,5 @@ export default function ProductCard({ product }: { product: Product }) {
     </motion.article>
   );
 }
+
+export const ProductCard = memo(ProductCardBase);

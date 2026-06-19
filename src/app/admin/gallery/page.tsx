@@ -1,13 +1,13 @@
-import { supabase } from "../../../lib/supabase";
+import Image from "next/image";
+import { fetchAllGallery } from "../../../services/home";
 import AddGalleryForm from "./AddGalleryForm";
 import DeleteGalleryButton from "./DeleteGalleryButton";
 import ToggleGalleryButton from "./ToggleGalleryButton";
 
+export const dynamic = "force-dynamic";
+
 export default async function GalleryPage() {
-  const { data: images } = await supabase
-    .from("gallery")
-    .select("*")
-    .order("id", { ascending: false });
+  const images = await fetchAllGallery();
 
   return (
     <div className="min-h-screen bg-ink p-8 md:p-12 text-cream">
@@ -16,16 +16,20 @@ export default async function GalleryPage() {
       </h1>
       <AddGalleryForm />
       <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6 mt-10">
-        {images?.map((image) => (
+        {images.map((image) => (
           <div
             key={image.id}
             className="glass rounded-3xl overflow-hidden shadow-luxe"
           >
-            <img
-              src={image.image}
-              alt=""
-              className="w-full h-56 object-cover"
-            />
+            <div className="relative w-full h-56">
+              <Image
+                src={image.image}
+                alt=""
+                fill
+                sizes="(max-width: 768px) 100vw, 25vw"
+                className="object-cover"
+              />
+            </div>
             <div className="p-4">
               <div className="flex gap-2">
                 <ToggleGalleryButton image={image} />

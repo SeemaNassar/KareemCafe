@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "../../../lib/supabase";
+import { supabase } from "../../../lib/supabase-browser";
 
 export default function AddCategoryForm() {
   const [name, setName] = useState("");

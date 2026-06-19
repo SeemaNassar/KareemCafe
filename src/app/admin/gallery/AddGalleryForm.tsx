@@ -1,24 +1,21 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "../../../lib/supabase";
+import { supabase } from "../../../lib/supabase-browser";
+import { uploadImage } from "../../../utils/storage";
 
 export default function AddGalleryForm() {
   const [file, setFile] = useState<File | null>(null);
 
   async function upload() {
     if (!file) return;
-    const fileName = `${Date.now()}-${file.name}`;
-    const { error } = await supabase.storage
-      .from("cafe-images")
-      .upload(fileName, file, { upsert: true });
-    if (error) {
-      alert(error.message);
+    let publicUrl: string;
+    try {
+      publicUrl = await uploadImage(file);
+    } catch (err) {
+      alert((err as Error).message);
       return;
     }
-    const {
-      data: { publicUrl },
-    } = supabase.storage.from("cafe-images").getPublicUrl(fileName);
     await supabase.from("gallery").insert({ image: publicUrl });
     location.reload();
   }

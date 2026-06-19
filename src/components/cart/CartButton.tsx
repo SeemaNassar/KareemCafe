@@ -2,13 +2,15 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingBag } from "lucide-react";
+import { useShallow } from "zustand/react/shallow";
 import { useCartStore } from "../../store/cartStore";
+import { totalQuantity } from "../../utils/cart";
 
 export default function CartButton() {
-  const openCart = useCartStore((s) => s.openCart);
-  const count = useCartStore(
-    (s) => s.items.reduce((sum, i) => sum + i.quantity, 0)
+  const { openCart, items } = useCartStore(
+    useShallow((s) => ({ openCart: s.openCart, items: s.items }))
   );
+  const count = totalQuantity(items);
 
   return (
     <AnimatePresence>
@@ -20,6 +22,7 @@ export default function CartButton() {
           transition={{ type: "spring", stiffness: 400, damping: 22 }}
           onClick={openCart}
           className="fixed bottom-6 right-6 z-40 group"
+          aria-label="Open cart"
         >
           <span className="absolute inset-0 rounded-full bg-gold-gradient blur-xl opacity-60 group-hover:opacity-100 transition-opacity" />
           <span className="relative grid place-items-center w-16 h-16 rounded-full bg-gold-gradient text-ink shadow-gold-glow transition-transform duration-300 group-hover:scale-110">

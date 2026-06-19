@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "../../../lib/supabase";
+import { supabase } from "../../../lib/supabase-browser";
+import type { Category } from "../../../types";
 
-export default function EditCategoryButton({ category }: { category: any }) {
+export default function EditCategoryButton({ category }: { category: Category }) {
   const [name, setName] = useState(category.name);
   const [open, setOpen] = useState(false);
 

@@ -1,6 +1,7 @@
 "use client";
 
-import { supabase } from "../../../lib/supabase";
+import { supabase } from "../../../lib/supabase-browser";
+import { removeImageByUrl } from "../../../utils/storage";
 
 export default function DeleteButton({
   id,
@@ -11,10 +12,7 @@ export default function DeleteButton({
 }) {
   async function handleDelete() {
     if (!confirm("Delete this product?")) return;
-    if (image) {
-      const path = image.split("/storage/v1/object/public/cafe-images/")[1];
-      await supabase.storage.from("cafe-images").remove([path]);
-    }
+    await removeImageByUrl(image);
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) {
       alert(error.message);

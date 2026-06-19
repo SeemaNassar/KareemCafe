@@ -1,12 +1,5 @@
 import { create } from "zustand";
-
-type CartItem = {
-    id: number;
-    name: string;
-    image: string;
-    price: number;
-    quantity: number;
-  };
+import type { CartItem } from "../types";
 
 type CartStore = {
   items: CartItem[];
@@ -14,7 +7,6 @@ type CartStore = {
 
   openCart: () => void;
   closeCart: () => void;
-
   addItem: (item: Omit<CartItem, "quantity">) => void;
   increase: (id: number) => void;
   decrease: (id: number) => void;
@@ -30,43 +22,21 @@ export const useCartStore = create<CartStore>((set) => ({
 
   addItem: (item) =>
     set((state) => {
-      const existing = state.items.find(
-        (i) => i.id === item.id
-      );
-
+      const existing = state.items.find((i) => i.id === item.id);
       if (existing) {
         return {
           items: state.items.map((i) =>
-            i.id === item.id
-              ? {
-                  ...i,
-                  quantity: i.quantity + 1,
-                }
-              : i
+            i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
           ),
         };
       }
-
-      return {
-        items: [
-          ...state.items,
-          {
-            ...item,
-            quantity: 1,
-          },
-        ],
-      };
+      return { items: [...state.items, { ...item, quantity: 1 }] };
     }),
 
   increase: (id) =>
     set((state) => ({
       items: state.items.map((i) =>
-        i.id === id
-          ? {
-              ...i,
-              quantity: i.quantity + 1,
-            }
-          : i
+        i.id === id ? { ...i, quantity: i.quantity + 1 } : i
       ),
     })),
 
@@ -74,19 +44,13 @@ export const useCartStore = create<CartStore>((set) => ({
     set((state) => ({
       items: state.items
         .map((i) =>
-          i.id === id
-            ? {
-                ...i,
-                quantity: i.quantity - 1,
-              }
-            : i
+          i.id === id ? { ...i, quantity: i.quantity - 1 } : i
         )
         .filter((i) => i.quantity > 0),
     })),
-    removeItem: (id) =>
-  set((state) => ({
-    items: state.items.filter(
-      (item) => item.id !== id
-    ),
-  })),
+
+  removeItem: (id) =>
+    set((state) => ({
+      items: state.items.filter((item) => item.id !== id),
+    })),
 }));

@@ -1,37 +1,38 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import ProductCard from "./ProductCard";
+import { ProductCard } from "./ProductCard";
+import { MenuSkeleton } from "../ui/Skeletons";
+import type { Product, Category } from "../../types";
 
-type Product = {
-  id: number;
-  name: string;
-  description: string | null;
-  price: number;
-  image: string | null;
-  featured?: boolean | null;
-  category_id: number | null;
-};
-
-type Category = {
-  id: number;
-  name: string;
+type Props = {
+  initialProducts: Product[];
+  initialCategories: Category[];
 };
 
 export default function MenuSection({
-  products,
-  categories,
-}: {
-  products: Product[];
-  categories: Category[];
-}) {
+  initialProducts,
+  initialCategories,
+}: Props) {
   const [selected, setSelected] = useState<number | null>(null);
 
-  const filtered =
-    selected === null
-      ? products
-      : products.filter((p) => p.category_id === selected);
+  const featured = useMemo(
+    () => initialProducts.filter((p) => p.featured),
+    [initialProducts]
+  );
+  const regular = useMemo(
+    () => initialProducts.filter((p) => !p.featured),
+    [initialProducts]
+  );
+
+  const filtered = useMemo(
+    () =>
+      selected === null
+        ? regular
+        : regular.filter((p) => p.category_id === selected),
+    [regular, selected]
+  );
 
   return (
     <div>
@@ -41,7 +42,7 @@ export default function MenuSection({
           onClick={() => setSelected(null)}
           label="All"
         />
-        {categories.map((c) => (
+        {initialCategories.map((c) => (
           <CategoryPill
             key={c.id}
             active={selected === c.id}
@@ -51,27 +52,28 @@ export default function MenuSection({
         ))}
       </div>
 
-      <motion.div
-        layout
-        className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
-      >
-        <AnimatePresence mode="popLayout">
-          {filtered.map((product) => (
-            <motion.div
-              key={product.id}
-              layout
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.9 }}
-              transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-            >
-              <ProductCard product={product} />
-            </motion.div>
-          ))}
-        </AnimatePresence>
-      </motion.div>
+      {filtered.length === 0 ? (
+        <MenuSkeleton count={6} />
+      ) : (
+        <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <AnimatePresence mode="popLayout">
+            {filtered.map((product) => (
+              <motion.div
+                key={product.id}
+                layout
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.9 }}
+                transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+              >
+                <ProductCard product={product} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </motion.div>
+      )}
 
-      {filtered.length === 0 && (
+      {featured.length === 0 && filtered.length === 0 && (
         <div className="text-center text-cream/40 py-20">
           No items in this category yet.
         </div>

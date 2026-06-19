@@ -1,8 +1,13 @@
 "use client";
 
-import { supabase } from "../../../lib/supabase";
+import { supabase } from "../../../lib/supabase-browser";
+import type { GalleryImage } from "../../../types";
 
-export default function ToggleGalleryButton({ image }: { image: any }) {
+export default function ToggleGalleryButton({
+  image,
+}: {
+  image: GalleryImage;
+}) {
   async function toggle() {
     await supabase
       .from("gallery")

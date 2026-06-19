@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "../../../lib/supabase";
+import { supabase } from "../../../lib/supabase-browser";
+import { uploadImage } from "../../../utils/storage";
 
 export default function AddOfferForm() {
   const [title, setTitle] = useState("");
@@ -11,17 +12,12 @@ export default function AddOfferForm() {
   async function handleAdd() {
     let imageUrl = "";
     if (imageFile) {
-      const fileName = `${Date.now()}-${imageFile.name}`;
-      const { error } = await supabase.storage
-        .from("cafe-images")
-        .upload(fileName, imageFile, { upsert: true });
-      if (error) {
-        alert(error.message);
+      try {
+        imageUrl = await uploadImage(imageFile);
+      } catch (err) {
+        alert((err as Error).message);
         return;
       }
-      imageUrl = supabase.storage
-        .from("cafe-images")
-        .getPublicUrl(fileName).data.publicUrl;
     }
     const { error } = await supabase.from("offers").insert({
       title,

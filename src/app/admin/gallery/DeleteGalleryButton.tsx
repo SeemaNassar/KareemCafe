@@ -1,14 +1,17 @@
 "use client";
 
-import { supabase } from "../../../lib/supabase";
+import { supabase } from "../../../lib/supabase-browser";
+import { removeImageByUrl } from "../../../utils/storage";
+import type { GalleryImage } from "../../../types";
 
-export default function DeleteGalleryButton({ image }: { image: any }) {
+export default function DeleteGalleryButton({
+  image,
+}: {
+  image: GalleryImage;
+}) {
   async function remove() {
     if (!confirm("Delete image?")) return;
-    const path = image.image.split(
-      "/storage/v1/object/public/cafe-images/"
-    )[1];
-    await supabase.storage.from("cafe-images").remove([path]);
+    await removeImageByUrl(image.image);
     await supabase.from("gallery").delete().eq("id", image.id);
     location.reload();
   }

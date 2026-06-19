@@ -1,37 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { supabase } from "../../../lib/supabase";
+import Image from "next/image";
+import { supabase } from "../../../lib/supabase-browser";
+import { uploadImage, removeImageByUrl } from "../../../utils/storage";
+import type { Product } from "../../../types";
 
-export default function EditButton({ product }: { product: any }) {
+export default function EditButton({ product }: { product: Product }) {
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(product.name);
-  const [description, setDescription] = useState(product.description);
+  const [description, setDescription] = useState(product.description ?? "");
   const [price, setPrice] = useState(product.price);
-  const [featured, setFeatured] = useState(product.featured);
+  const [featured, setFeatured] = useState(product.featured ?? false);
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   async function save() {
     let imageUrl = product.image;
     if (imageFile) {
-      if (product.image) {
-        const oldPath = product.image.split(
-          "/storage/v1/object/public/cafe-images/"
-        )[1];
-        await supabase.storage.from("cafe-images").remove([oldPath]);
-      }
-      const fileName = `${Date.now()}-${imageFile.name}`;
-      const { error: uploadError } = await supabase.storage
-        .from("cafe-images")
-        .upload(fileName, imageFile, { upsert: true });
-      if (uploadError) {
-        alert(uploadError.message);
+      try {
+        await removeImageByUrl(product.image);
+        imageUrl = await uploadImage(imageFile);
+      } catch (err) {
+        alert((err as Error).message);
         return;
       }
-      const {
-        data: { publicUrl },
-      } = supabase.storage.from("cafe-images").getPublicUrl(fileName);
-      imageUrl = publicUrl;
     }
 
     const { error } = await supabase
@@ -69,11 +61,15 @@ export default function EditButton({ product }: { product: any }) {
               Edit Product
             </h2>
             {product.image && (
-              <img
-                src={product.image}
-                alt={product.name}
-                className="w-full h-48 object-cover rounded-xl mb-4 ring-1 ring-gold/20"
-              />
+              <div className="relative w-full h-48 mb-4 rounded-xl overflow-hidden ring-1 ring-gold/20">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  sizes="500px"
+                  className="object-cover"
+                />
+              </div>
             )}
             <input
               value={name}

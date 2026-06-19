@@ -1,27 +1,43 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import Image from "next/image";
 import { X } from "lucide-react";
-import { supabase } from "../../lib/supabase";
-import { useRealtimeQuery } from "../../hooks/useRealtimeQuery";
 import SectionHeading from "../ui/SectionHeading";
+import { GallerySkeleton } from "../ui/Skeletons";
+import { useRealtimeQuery } from "../../hooks/useRealtimeQuery";
+import { supabase } from "../../lib/supabase-browser";
+import type { GalleryImage, QueryResult } from "../../types";
 
-type GalleryImage = {
-  id: number;
-  image: string;
-  active: boolean;
+type Props = {
+  initialGallery: GalleryImage[];
 };
 
-export default function GallerySection() {
-  const { data } = useRealtimeQuery<GalleryImage[]>("gallery", () =>
-    supabase.from("gallery").select("*").eq("active", true).order("id", {
-      ascending: false,
-    })
+export default function GallerySection({ initialGallery }: Props) {
+  const [images, setImages] = useState<GalleryImage[]>(initialGallery);
+  const [activeIndex, setActiveIndex] = useState<number | null>(null);
+
+  const fetchGallery = useCallback(async (): Promise<
+    QueryResult<GalleryImage[]>
+  > => {
+    const { data, error } = await supabase
+      .from("gallery")
+      .select("*")
+      .eq("active", true)
+      .order("id", { ascending: false });
+    return {
+      data: (data as GalleryImage[]) ?? null,
+      error: error as Error | null,
+    };
+  }, []);
+
+  const { data: rtImages, loading } = useRealtimeQuery<GalleryImage[]>(
+    "gallery",
+    fetchGallery
   );
 
-  const [activeIndex, setActiveIndex] = useState<number | null>(null);
-  const images = data ?? [];
+  const list = rtImages ?? images;
 
   return (
     <section
@@ -30,15 +46,21 @@ export default function GallerySection() {
     >
       <div className="absolute inset-0 bg-grain opacity-30" />
       <div className="relative max-w-7xl mx-auto">
-        <SectionHeading eyebrow="Moments" title="Cafe Gallery" className="mb-16" />
+        <SectionHeading
+          eyebrow="Moments"
+          title="Cafe Gallery"
+          className="mb-16"
+        />
 
-        {images.length === 0 ? (
+        {loading && list.length === 0 ? (
+          <GallerySkeleton />
+        ) : list.length === 0 ? (
           <div className="text-center text-cream/40 py-20">
             Gallery is being curated.
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-[200px] md:auto-rows-[240px] gap-4">
-            {images.map((img, i) => {
+            {list.map((img, i) => {
               const span = i % 5 === 0 ? "md:col-span-2 md:row-span-2" : "";
               return (
                 <motion.button
@@ -55,11 +77,13 @@ export default function GallerySection() {
                   onClick={() => setActiveIndex(i)}
                   className={`group relative overflow-hidden rounded-3xl ${span}`}
                 >
-                  <img
+                  <Image
                     src={img.image}
                     alt=""
+                    fill
+                    sizes="(max-width: 768px) 50vw, 25vw"
                     loading="lazy"
-                    className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-110"
+                    className="object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute bottom-4 left-4 right-4 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
@@ -74,9 +98,8 @@ export default function GallerySection() {
         )}
       </div>
 
-      {/* Lightbox */}
       <AnimatePresence>
-        {activeIndex !== null && images[activeIndex] && (
+        {activeIndex !== null && list[activeIndex] && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -93,17 +116,23 @@ export default function GallerySection() {
               <X className="w-5 h-5" />
             </button>
 
-            <motion.img
+            <motion.div
               key={activeIndex}
-              src={images[activeIndex].image}
-              alt=""
               initial={{ scale: 0.9, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.9, opacity: 0 }}
               transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
-              className="relative max-h-[85vh] max-w-[90vw] object-contain rounded-2xl shadow-luxe ring-gold"
+              className="relative w-[90vw] h-[85vh] max-w-[1200px]"
               onClick={(e) => e.stopPropagation()}
-            />
+            >
+              <Image
+                src={list[activeIndex].image}
+                alt=""
+                fill
+                sizes="90vw"
+                className="object-contain rounded-2xl shadow-luxe ring-gold"
+              />
+            </motion.div>
           </motion.div>
         )}
       </AnimatePresence>

@@ -1,13 +1,14 @@
-import { supabase } from "../../../lib/supabase";
-import AddProductForm from "./AddProductForm";
+"use client";
+
 import DeleteButton from "./DeleteButton";
 import EditButton from "./EditButton";
+import AddProductForm from "./AddProductForm";
+import { fetchProducts } from "../../../services/home";
+
+export const dynamic = "force-dynamic";
 
 export default async function ProductsAdmin() {
-  const { data: products } = await supabase
-    .from("products")
-    .select("*")
-    .order("id", { ascending: false });
+  const products = await fetchProducts();
 
   return (
     <div className="min-h-screen bg-ink p-8 md:p-12 text-cream">
@@ -26,7 +27,7 @@ export default async function ProductsAdmin() {
             </tr>
           </thead>
           <tbody>
-            {products?.map((product) => (
+            {products.map((product) => (
               <tr
                 key={product.id}
                 className="border-b border-gold/10 hover:bg-gold/5 transition-colors"
