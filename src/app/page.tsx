@@ -15,7 +15,7 @@ export default async function Home() {
     .from("site_settings")
     .select("about_title, about_body, about_image, hero_tagline")
     .eq("id", 1)
-    .single();
+    .maybeSingle();
 
   return (
     <main className="relative bg-ink">
