@@ -1,5 +1,3 @@
-"use client";
-
 import DeleteButton from "./DeleteButton";
 import EditButton from "./EditButton";
 import AddProductForm from "./AddProductForm";
