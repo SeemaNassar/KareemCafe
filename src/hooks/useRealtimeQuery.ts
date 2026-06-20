@@ -68,8 +68,13 @@ export function useRealtimeQuery<T>(
       }
     });
 
+    // Unique channel name per hook instance. Reusing a fixed name returns a
+    // cached channel whose subscribe state is shared — calling .on() on an
+    // already-subscribed channel throws "cannot add postgres_changes callbacks
+    // after subscribe()". A unique name guarantees .on() always runs first.
+    const channelName = `realtime-${table}-${Math.random().toString(36).slice(2)}`;
     const channel = supabase
-      .channel(`realtime-${table}`)
+      .channel(channelName)
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table },
