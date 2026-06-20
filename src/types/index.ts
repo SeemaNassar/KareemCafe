@@ -22,6 +22,9 @@ export type Offer = {
   image: string | null;
   active: boolean;
   created_at: string;
+  product_id: number | null;
+  required_quantity: number | null;
+  discounted_price: number | null;
 };
 
 export type GalleryImage = {

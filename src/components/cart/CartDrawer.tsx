@@ -6,9 +6,12 @@ import Image from "next/image";
 import { X, Plus, Minus, Trash2, Truck, Store } from "lucide-react";
 import { useShallow } from "zustand/react/shallow";
 import { useCartStore } from "../../store/cartStore";
+import { useRealtimeQuery } from "../../hooks/useRealtimeQuery";
+import { supabase } from "../../lib/supabase-browser";
+import type { Offer } from "../../types";
 import {
   DELIVERY_FEE,
-  totalAmount,
+  computeTotals,
   buildWhatsAppOrderLink,
 } from "../../utils/cart";
 
@@ -34,15 +37,27 @@ export default function CartDrawer() {
   const [notes, setNotes] = useState("");
   const [orderType, setOrderType] = useState<OrderType>("delivery");
 
+  // Share the offers cache with OffersSection (same table name → one fetch).
+  const { data: offers } = useRealtimeQuery<Offer[]>("offers", async () => {
+    const { data, error } = await supabase
+      .from("offers")
+      .select("*")
+      .eq("active", true)
+      .order("id", { ascending: false });
+    return { data: (data as Offer[]) ?? [], error: error as Error | null };
+  });
+
+  const activeOffers = offers ?? [];
+  const breakdown = computeTotals(items, activeOffers);
   const deliveryFee = orderType === "delivery" ? DELIVERY_FEE : 0;
-  const total = totalAmount(items);
-  const final = total + deliveryFee;
+  const final = breakdown.discountedTotal + deliveryFee;
 
   const whatsappLink = buildWhatsAppOrderLink(
     items,
     orderType,
     { name, phone, address, notes },
-    WHATSAPP_NUMBER
+    WHATSAPP_NUMBER,
+    activeOffers
   );
 
   return (
@@ -224,8 +239,25 @@ export default function CartDrawer() {
                 <div className="space-y-2 text-sm">
                   <div className="flex justify-between text-cream/60">
                     <span>المجموع</span>
-                    <span className="tabular-nums">₪{total.toFixed(0)}</span>
+                    <span className="tabular-nums">₪{breakdown.subtotal.toFixed(0)}</span>
                   </div>
+                  {breakdown.savings > 0 && (
+                    <div className="flex justify-between text-emerald-400/90">
+                      <span>الخصم</span>
+                      <span className="tabular-nums">-₪{breakdown.savings.toFixed(0)}</span>
+                    </div>
+                  )}
+                  {breakdown.applied.map((a) => (
+                    <div
+                      key={a.offer.id}
+                      className="flex justify-between text-xs text-cream/40 pl-2"
+                    >
+                      <span>{a.offer.title}</span>
+                      <span className="tabular-nums">
+                        {a.bundles} × ₪{a.bundlePrice}
+                      </span>
+                    </div>
+                  ))}
                   <div className="flex justify-between text-cream/60">
                     <span>التوصيل</span>
                     <span className="tabular-nums">₪{deliveryFee}</span>
