@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import type { RealtimeChannel } from "@supabase/supabase-js";
 import { supabase } from "../lib/supabase-browser";
 import type { QueryResult } from "../types";
 
@@ -12,6 +13,15 @@ import type { QueryResult } from "../types";
 type CacheEntry<T> = { data: T | null; ts: number };
 const cache = new Map<string, CacheEntry<unknown>>();
 const subscribers = new Map<string, Set<() => void>>();
+
+/**
+ * Per-table realtime channels, created once and shared across all hook
+ * instances. A single channel per table avoids the Supabase error
+ * "cannot add postgres_changes callbacks after subscribe()" that occurs when
+ * a cached channel is re-subscribed during React's Strict Mode remount cycle.
+ */
+const channels = new Map<string, RealtimeChannel>();
+const channelRefCount = new Map<string, number>();
 
 const CACHE_TTL_MS = 60_000;
 
@@ -25,6 +35,44 @@ function subscribe(table: string, cb: () => void) {
   return () => subscribers.get(table)?.delete(cb);
 }
 
+/**
+ * Acquire the single shared realtime channel for a table. The channel is
+ * created with .on() BEFORE .subscribe() (required by Supabase), and kept
+ * alive via refcount so it is only removed when the last subscriber leaves.
+ */
+function acquireChannel(
+  table: string,
+  onInvalidation: () => void
+): RealtimeChannel {
+  let channel = channels.get(table);
+  if (!channel) {
+    channel = supabase
+      .channel(`realtime-${table}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table },
+        () => onInvalidation()
+      )
+      .subscribe();
+    channels.set(table, channel);
+  }
+  channelRefCount.set(table, (channelRefCount.get(table) ?? 0) + 1);
+  return channel;
+}
+
+function releaseChannel(table: string) {
+  const next = (channelRefCount.get(table) ?? 1) - 1;
+  channelRefCount.set(table, next);
+  if (next <= 0) {
+    const channel = channels.get(table);
+    if (channel) {
+      supabase.removeChannel(channel);
+      channels.delete(table);
+    }
+    channelRefCount.delete(table);
+  }
+}
+
 export function useRealtimeQuery<T>(
   table: string,
   fetcher: () => PromiseLike<QueryResult<T>>,
@@ -35,12 +83,13 @@ export function useRealtimeQuery<T>(
     return cached?.data ?? null;
   });
   const [error, setError] = useState<Error | null>(null);
-  const [loading, setLoading] = useState<boolean>(
-    () => !cache.has(table)
-  );
+  const [loading, setLoading] = useState<boolean>(() => !cache.has(table));
 
   const fetcherRef = useRef(fetcher);
   fetcherRef.current = fetcher;
+
+  const tableRef = useRef(table);
+  tableRef.current = table;
 
   useEffect(() => {
     let cancelled = false;
@@ -68,24 +117,15 @@ export function useRealtimeQuery<T>(
       }
     });
 
-    // Unique channel name per hook instance. Reusing a fixed name returns a
-    // cached channel whose subscribe state is shared — calling .on() on an
-    // already-subscribed channel throws "cannot add postgres_changes callbacks
-    // after subscribe()". A unique name guarantees .on() always runs first.
-    const channelName = `realtime-${table}-${Math.random().toString(36).slice(2)}`;
-    const channel = supabase
-      .channel(channelName)
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table },
-        () => void run()
-      )
-      .subscribe();
+    // Acquire the shared per-table channel. Its onInvalidation callback
+    // refetches to pick up the change; the shared cache + notify() then
+    // hydrate every other component instance subscribed to this table.
+    const channel = acquireChannel(tableRef.current, () => void run());
 
     return () => {
       cancelled = true;
       unsubscribe();
-      supabase.removeChannel(channel);
+      releaseChannel(tableRef.current);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, deps);
