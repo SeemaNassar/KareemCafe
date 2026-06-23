@@ -14,9 +14,7 @@ export default function AdminPage() {
   }, []);
 
   async function checkSession() {
-    const {
-      data: { session },
-    } = await supabase.auth.getSession();
+    const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       router.replace("/login");
       return;
@@ -38,19 +36,18 @@ export default function AdminPage() {
   }
 
   const cards = [
-    { href: "/admin/products", label: "Products", icon: "☕" },
-    { href: "/admin/categories", label: "Categories", icon: "🏷" },
-    { href: "/admin/offers", label: "Offers", icon: "🔥" },
-    { href: "/admin/gallery", label: "Gallery", icon: "📸" },
+    { href: "/admin/products",   label: "Products",    icon: "☕" },
+    { href: "/admin/categories", label: "Categories",  icon: "🏷" },
+    { href: "/admin/offers",     label: "Offers",      icon: "🔥" },
+    { href: "/admin/gallery",    label: "Gallery",     icon: "📸" },
+    { href: "/admin/analytics",  label: "التحليلات",   icon: "📊" },
   ];
 
   return (
     <div className="min-h-screen bg-ink p-8 md:p-12 text-cream">
       <div className="flex justify-between items-center flex-wrap gap-4">
         <div>
-          <span className="text-xs uppercase tracking-[0.4em] text-gold">
-            Dashboard
-          </span>
+          <span className="text-xs uppercase tracking-[0.4em] text-gold">Dashboard</span>
           <h1 className="mt-2 font-display text-5xl font-black text-cream">
             Admin <span className="text-gold-gradient">Panel</span>
           </h1>
@@ -64,7 +61,7 @@ export default function AdminPage() {
         </button>
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-12">
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-12">
         {cards.map((card) => (
           <Link
             key={card.href}

@@ -9,6 +9,7 @@ import { useCartStore } from "../../store/cartStore";
 import { useRealtimeQuery } from "../../hooks/useRealtimeQuery";
 import { supabase } from "../../lib/supabase-browser";
 import type { Offer } from "../../types";
+import { saveOrder } from "../../services/orders";
 import {
   DELIVERY_FEE,
   computeTotals,
@@ -36,6 +37,7 @@ export default function CartDrawer() {
   const [address, setAddress] = useState("");
   const [notes, setNotes] = useState("");
   const [orderType, setOrderType] = useState<OrderType>("delivery");
+  const [sending, setSending] = useState(false);
 
   // Share the offers cache with OffersSection (same table name → one fetch).
   const { data: offers } = useRealtimeQuery<Offer[]>("offers", async () => {
@@ -59,6 +61,19 @@ export default function CartDrawer() {
     WHATSAPP_NUMBER,
     activeOffers
   );
+
+ async function handleSendOrder() {
+  if (sending) return;
+  setSending(true);
+  try {
+    await saveOrder(items, orderType, { name, phone, address, notes }, activeOffers);
+  } catch {
+    // الطلب يكمل حتى لو في خطأ بالحفظ
+  } finally {
+    setSending(false);
+  }
+  window.open(whatsappLink, "_blank", "noopener,noreferrer");
+} 
 
   return (
     <AnimatePresence>
@@ -271,14 +286,13 @@ export default function CartDrawer() {
                     </span>
                   </div>
                 </div>
-                <a
-                  href={whatsappLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full text-center bg-green-600 hover:bg-green-500 text-cream py-4 rounded-xl font-semibold transition-all duration-300 hover:-translate-y-0.5 shadow-lg"
+                <button
+                  onClick={handleSendOrder}
+                  disabled={sending}
+                  className="block w-full text-center bg-green-600 hover:bg-green-500 disabled:opacity-60 text-cream py-4 rounded-xl font-semibold transition-all duration-300 hover:-translate-y-0.5 shadow-lg"
                 >
-                  إرسال الطلب عبر واتساب
-                </a>
+                  {sending ? "جاري الحفظ..." : "إرسال الطلب عبر واتساب"}
+                </button>
               </div>
             )}
           </motion.aside>
