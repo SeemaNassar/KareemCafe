@@ -71,7 +71,11 @@ export default function ProductsSection({
       <div className="absolute inset-0 bg-grain opacity-30" />
 
       <div className="relative max-w-7xl mx-auto">
-        <SectionHeading eyebrow="Signature Craft" title="Our Menu" />
+        <SectionHeading // eyebrow="Signature Craft"
+eyebrow="إبداعاتنا"
+
+// title="Our Menu"
+title="قائمتنا" />
 
         {featured.length > 0 && (
           <div className="mt-16">
@@ -87,7 +91,7 @@ export default function ProductsSection({
 
         <div className="mt-20">
           <h3 className="font-display text-3xl md:text-4xl font-semibold text-cream mb-10 text-center">
-            Full Menu
+          القائمة الكاملة
           </h3>
           <MenuSection
             initialProducts={regular}

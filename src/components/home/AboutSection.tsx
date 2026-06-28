@@ -14,18 +14,18 @@ type Settings = {
 const PILLARS = [
   {
     icon: Coffee,
-    title: "Hand-Selected Beans",
-    body: "Single-origin Arabica, roasted in small batches for a cup that tells its own story.",
+    title: "حبوب مختارة بعناية",
+    body: "عربيكا أصيلة من أصول مفردة، محمّصة بكميات صغيرة لكوب يحكي قصته الخاصة.",
   },
   {
     icon: Leaf,
-    title: "Fresh Every Day",
-    body: "Mojitos muddled to order and desserts crafted each morning from real ingredients.",
+    title: "طازج كل يوم",
+    body: "مهبّلات تُحضَّر عند الطلب وحلويات تُصنع كل صباح من مكونات طبيعية.",
   },
   {
     icon: Heart,
-    title: "Warm Hospitality",
-    body: "A sanctuary where conversations linger and every visit feels like coming home.",
+    title: "ضيافة دافئة",
+    body: "مكان تطول فيه الأحاديث وتشعر في كل زيارة أنك عدت إلى البيت.",
   },
 ];
 
@@ -87,7 +87,7 @@ export default function AboutSection({
               10+
             </div>
             <div className="mt-1 text-xs uppercase tracking-[0.2em] text-cream/60">
-              Years of Crafting
+            سنوات من الشغف
             </div>
           </motion.div>
 
@@ -105,7 +105,7 @@ export default function AboutSection({
             transition={{ duration: 0.8 }}
             className="text-xs uppercase tracking-[0.4em] text-gold"
           >
-            About Us
+            من نحن
           </motion.span>
 
           <motion.h2

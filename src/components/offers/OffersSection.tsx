@@ -44,8 +44,12 @@ export default function OffersSection({ initialOffers }: Props) {
 
       <div className="relative max-w-7xl mx-auto">
         <SectionHeading
-          eyebrow="Limited Time"
-          title="Special Offers"
+          // eyebrow="Limited Time"
+          eyebrow="لفترة محدودة"
+
+          // title="Special Offers"
+          title="العروض الخاصة"
+
           className="mb-16"
         />
 
@@ -53,7 +57,7 @@ export default function OffersSection({ initialOffers }: Props) {
           <OfferGridSkeleton count={3} />
         ) : list.length === 0 ? (
           <div className="text-center text-cream/40 py-20">
-            New offers coming soon.
+            عروض جديدة قريباً.
           </div>
         ) : (
           <StaggerGroup className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -79,7 +83,7 @@ export default function OffersSection({ initialOffers }: Props) {
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/30 to-transparent" />
                   <div className="absolute top-4 left-4 glass-dark px-3 py-1.5 rounded-full text-xs font-semibold text-gold tracking-wide">
-                    Offer
+                  عرض
                   </div>
                 </div>
 
@@ -96,7 +100,7 @@ export default function OffersSection({ initialOffers }: Props) {
                     href="#menu"
                     className="mt-6 inline-flex items-center gap-2 text-sm font-medium text-gold hover:gap-3 transition-all"
                   >
-                    Order Now
+                    اطلب الآن
                     <span aria-hidden>→</span>
                   </a>
                 </div>

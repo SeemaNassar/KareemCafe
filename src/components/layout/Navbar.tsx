@@ -3,13 +3,14 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, Phone } from "lucide-react";
+import Image from "next/image";
 
 const LINKS = [
-  { label: "Home", href: "#home" },
-  { label: "About", href: "#about" },
-  { label: "Menu", href: "#menu" },
-  { label: "Offers", href: "#offers" },
-  { label: "Gallery", href: "#gallery" },
+  { label: "الرئيسية", href: "#home" },
+  { label: "من نحن", href: "#about" },
+  { label: "القائمة", href: "#menu" },
+  { label: "العروض", href: "#offers" },
+  { label: "المعرض", href: "#gallery" },
 ];
 
 export default function Navbar() {
@@ -43,11 +44,14 @@ export default function Navbar() {
         }`}
       >
         <nav className="max-w-7xl mx-auto px-6 flex items-center justify-between">
-          <a href="#home" className="group flex items-center gap-3">
-            <span className="relative grid place-items-center w-10 h-10 rounded-full bg-gold-gradient text-ink font-display font-black text-lg shadow-gold-glow">
-              K
-              <span className="absolute inset-0 rounded-full ring-1 ring-gold/40" />
-            </span>
+          <a href="#home" className="group flex items-center gap-2">
+            <Image
+              src="/kareemLogo.png"
+              alt="Kareem Café"
+              width={52}
+              height={52}
+              className="drop-shadow-[0_0_8px_rgba(212,175,55,0.4)] transition-transform duration-300 group-hover:scale-105"
+            />
             <span className="font-display text-2xl font-bold tracking-tight text-cream">
               Kareem{" "}
               <span className="text-gold-gradient">Cafe</span>
@@ -80,7 +84,7 @@ export default function Navbar() {
               href="#menu"
               className="bg-gold-gradient text-ink px-5 py-2.5 rounded-full text-sm font-semibold hover:shadow-gold-glow transition-all duration-300 hover:-translate-y-0.5"
             >
-              Order Now
+              اطلب الآن
             </a>
           </div>
 

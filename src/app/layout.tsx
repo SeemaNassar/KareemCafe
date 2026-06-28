@@ -20,9 +20,8 @@ const playfair = Playfair_Display({
 });
 
 export const metadata: Metadata = {
-  title: "Cafe Kareem — Premium Coffee, Desserts & Mojitos",
-  description:
-    "A sanctuary of specialty coffee, handcrafted desserts, and fresh mojitos. Crafted moments worth savoring, at Cafe Kareem.",
+  title: "كافيه كريم — قهوة مختصة، حلويات وموهيتو",
+  description: "وجهتك لأجود أنواع القهوة المختصة والحلويات الطازجة والموهيتو المنعش. لحظات تستحق التذوق في كافيه كريم.",
 };
 
 export default function RootLayout({
@@ -32,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-      lang="en"
+    lang="ar" dir="rtl"
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
     >
       <body

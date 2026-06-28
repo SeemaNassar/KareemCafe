@@ -68,7 +68,7 @@ export default function HeroSection() {
             />
           ))}
           <span className="ml-2 text-xs uppercase tracking-[0.3em] text-cream/60">
-            Est. Specialty Coffee
+          قهوة مختصة منذ سنوات
           </span>
         </motion.div>
 
@@ -88,7 +88,8 @@ export default function HeroSection() {
           transition={{ duration: 1, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
           className="mt-8 max-w-xl text-lg md:text-xl text-cream/75 tracking-wide"
         >
-          Premium Coffee &bull; Desserts &bull; Mojitos
+          قهوة مختصة &bull; حلويات &bull; موهيتو
+          {/* Premium Coffee &bull; Desserts &bull; Mojitos */}
         </motion.p>
 
         <motion.div
@@ -102,7 +103,7 @@ export default function HeroSection() {
             className="group relative overflow-hidden bg-gold-gradient text-ink px-9 py-4 rounded-full font-semibold tracking-wide shadow-gold-glow transition-transform duration-300 hover:-translate-y-1"
           >
             <span className="relative z-10 flex items-center gap-2">
-              Explore Menu
+            استكشف القائمة
               <ArrowDown className="w-4 h-4 group-hover:translate-y-0.5 transition-transform" />
             </span>
           </a>
@@ -110,7 +111,7 @@ export default function HeroSection() {
             href="#offers"
             className="glass-light text-cream px-9 py-4 rounded-full font-medium tracking-wide hover:bg-cream/10 transition-colors duration-300"
           >
-            View Offers
+            العروض
           </a>
         </motion.div>
       </motion.div>
@@ -123,7 +124,7 @@ export default function HeroSection() {
         className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10 flex flex-col items-center gap-2"
       >
         <span className="text-[10px] uppercase tracking-[0.4em] text-cream/40">
-          Scroll
+        اسحب للأسفل
         </span>
         <div className="w-px h-12 bg-gradient-to-b from-gold/60 to-transparent overflow-hidden relative">
           <motion.div

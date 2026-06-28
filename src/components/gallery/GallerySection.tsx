@@ -47,8 +47,11 @@ export default function GallerySection({ initialGallery }: Props) {
       <div className="absolute inset-0 bg-grain opacity-30" />
       <div className="relative max-w-7xl mx-auto">
         <SectionHeading
-          eyebrow="Moments"
-          title="Cafe Gallery"
+          // eyebrow="Moments"
+          eyebrow="لحظات"
+
+          // title="Cafe Gallery"
+          title="معرض الكافيه"
           className="mb-16"
         />
 
@@ -56,7 +59,7 @@ export default function GallerySection({ initialGallery }: Props) {
           <GallerySkeleton />
         ) : list.length === 0 ? (
           <div className="text-center text-cream/40 py-20">
-            Gallery is being curated.
+            يتم إعداد المعرض قريباً.
           </div>
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 auto-rows-[200px] md:auto-rows-[240px] gap-4">
@@ -88,7 +91,7 @@ export default function GallerySection({ initialGallery }: Props) {
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                   <div className="absolute bottom-4 left-4 right-4 translate-y-3 opacity-0 group-hover:translate-y-0 group-hover:opacity-100 transition-all duration-500">
                     <span className="text-xs uppercase tracking-[0.3em] text-gold">
-                      View
+                    عرض
                     </span>
                   </div>
                 </motion.button>
