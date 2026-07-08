@@ -107,8 +107,8 @@ export default function Footer() {
           transition={{ delay: 0.3, duration: 0.8 }}
           className="mt-16 pt-8 border-t border-gold/10 flex flex-col sm:flex-row justify-between items-center gap-4 text-sm text-cream/40"
         >
-          <span>`© ${year} كافيه كريم. جميع الحقوق محفوظة.`</span>
-          <span>مصنوع بشغف وحب &amp; ☕</span>
+          <span>© {year} كافيه كريم. جميع الحقوق محفوظة.</span>
+          <span>صُنع بشغف وحب ☕</span>
         </motion.div>
       </div>
     </footer>

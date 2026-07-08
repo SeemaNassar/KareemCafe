@@ -86,6 +86,7 @@ export default function GallerySection({ initialGallery }: Props) {
                     fill
                     sizes="(max-width: 768px) 50vw, 25vw"
                     loading="lazy"
+                    quality={75}
                     className="object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-ink/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -133,6 +134,7 @@ export default function GallerySection({ initialGallery }: Props) {
                 alt=""
                 fill
                 sizes="90vw"
+                quality={75}
                 className="object-contain rounded-2xl shadow-luxe ring-gold"
               />
             </motion.div>

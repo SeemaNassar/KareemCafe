@@ -1,4 +1,4 @@
-import { getSupabaseServerClient } from "../lib/supabase-browser";
+import { getSupabaseServerClient } from "../lib/supabase";
 import type {
   GalleryImage,
   Offer,

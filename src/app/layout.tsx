@@ -31,7 +31,7 @@ export default function RootLayout({
 }>) {
   return (
     <html
-    lang="ar" dir="rtl"
+    lang="ar" dir="rtl" data-scroll-behavior="smooth"
       className={`${geistSans.variable} ${geistMono.variable} ${playfair.variable} h-full antialiased`}
     >
       <body

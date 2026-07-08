@@ -12,7 +12,7 @@ export default async function GalleryPage() {
   return (
     <div className="min-h-screen bg-ink p-8 md:p-12 text-cream">
       <h1 className="font-display text-4xl font-bold text-cream mb-10">
-        Gallery
+        المعرض
       </h1>
       <AddGalleryForm />
       <div className="grid md:grid-cols-3 lg:grid-cols-4 gap-6 mt-10">

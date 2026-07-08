@@ -9,7 +9,7 @@ import { useCartStore } from "../../store/cartStore";
 import { useRealtimeQuery } from "../../hooks/useRealtimeQuery";
 import { supabase } from "../../lib/supabase-browser";
 import type { Offer } from "../../types";
-import { saveOrder } from "../../services/orders";
+import { saveOrder, validateOrder } from "../../services/orders";
 import {
   DELIVERY_FEE,
   computeTotals,
@@ -38,6 +38,7 @@ export default function CartDrawer() {
   const [notes, setNotes] = useState("");
   const [orderType, setOrderType] = useState<OrderType>("delivery");
   const [sending, setSending] = useState(false);
+  const [orderError, setOrderError] = useState("");
 
   // Share the offers cache with OffersSection (same table name → one fetch).
   const { data: offers } = useRealtimeQuery<Offer[]>("offers", async () => {
@@ -64,11 +65,19 @@ export default function CartDrawer() {
 
  async function handleSendOrder() {
   if (sending) return;
+  const validation = validateOrder(items, orderType, { name, phone, address, notes });
+  if (!validation.valid) {
+    setOrderError(validation.errors.join("، "));
+    return;
+  }
+  setOrderError("");
   setSending(true);
   try {
     await saveOrder(items, orderType, { name, phone, address, notes }, activeOffers);
-  } catch {
-    // الطلب يكمل حتى لو في خطأ بالحفظ
+  } catch (err) {
+    setOrderError((err as Error).message);
+    setSending(false);
+    return;
   } finally {
     setSending(false);
   }
@@ -146,6 +155,7 @@ export default function CartDrawer() {
                           alt={item.name}
                           fill
                           sizes="80px"
+                          quality={75}
                           className="object-cover"
                         />
                       </div>
@@ -286,6 +296,11 @@ export default function CartDrawer() {
                     </span>
                   </div>
                 </div>
+                {orderError && (
+                  <div className="bg-error/15 border border-error/30 text-error rounded-xl px-4 py-3 text-sm mb-3">
+                    {orderError}
+                  </div>
+                )}
                 <button
                   onClick={handleSendOrder}
                   disabled={sending}

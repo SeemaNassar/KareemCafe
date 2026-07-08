@@ -28,6 +28,7 @@ function ProductCardBase({ product }: Props) {
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
           loading="lazy"
+          quality={75}
           className="object-cover transition-transform duration-[1.2s] ease-out group-hover:scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-ink/70 via-transparent to-transparent pointer-events-none" />

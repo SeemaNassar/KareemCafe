@@ -21,7 +21,7 @@ export default function ToggleGalleryButton({
       onClick={toggle}
       className="bg-gold/20 hover:bg-gold/30 text-gold px-4 py-2 rounded-xl text-sm font-medium transition-colors"
     >
-      {image.active ? "Hide" : "Show"}
+      {image.active ? "إخفاء" : "إظهار"}
     </button>
   );
 }

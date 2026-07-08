@@ -6,14 +6,17 @@ import { uploadImage } from "../../../utils/storage";
 
 export default function AddGalleryForm() {
   const [file, setFile] = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
 
   async function upload() {
     if (!file) return;
+    setSaving(true);
     let publicUrl: string;
     try {
       publicUrl = await uploadImage(file);
     } catch (err) {
       alert((err as Error).message);
+      setSaving(false);
       return;
     }
     await supabase.from("gallery").insert({ image: publicUrl });
@@ -29,9 +32,10 @@ export default function AddGalleryForm() {
       />
       <button
         onClick={upload}
-        className="ml-4 bg-gold-gradient text-ink px-5 py-2 rounded-xl font-semibold hover:shadow-gold-glow transition-all"
+        disabled={saving}
+        className="ml-4 bg-gold-gradient text-ink px-5 py-2 rounded-xl font-semibold hover:shadow-gold-glow transition-all disabled:opacity-60"
       >
-        Upload
+        {saving ? "جاري الرفع..." : "رفع الصورة"}
       </button>
     </div>
   );

@@ -30,34 +30,34 @@ export default function AdminPage() {
   if (loading) {
     return (
       <div className="min-h-screen grid place-items-center bg-ink text-cream">
-        Loading...
+        جاري التحميل...
       </div>
     );
   }
 
   const cards = [
-    { href: "/admin/products",   label: "Products",    icon: "☕" },
-    { href: "/admin/categories", label: "Categories",  icon: "🏷" },
-    { href: "/admin/offers",     label: "Offers",      icon: "🔥" },
-    { href: "/admin/gallery",    label: "Gallery",     icon: "📸" },
-    { href: "/admin/analytics",  label: "التحليلات",   icon: "📊" },
+    { href: "/admin/products",   label: "المنتجات",   icon: "☕" },
+    { href: "/admin/categories", label: "التصنيفات",  icon: "🏷" },
+    { href: "/admin/offers",     label: "العروض",     icon: "🔥" },
+    { href: "/admin/gallery",    label: "المعرض",     icon: "📸" },
+    { href: "/admin/analytics",  label: "التحليلات",  icon: "📊" },
   ];
 
   return (
     <div className="min-h-screen bg-ink p-8 md:p-12 text-cream">
       <div className="flex justify-between items-center flex-wrap gap-4">
         <div>
-          <span className="text-xs uppercase tracking-[0.4em] text-gold">Dashboard</span>
+          <span className="text-xs uppercase tracking-[0.4em] text-gold">لوحة التحكم</span>
           <h1 className="mt-2 font-display text-5xl font-black text-cream">
-            Admin <span className="text-gold-gradient">Panel</span>
+            الإدارة <span className="text-gold-gradient">الكاملة</span>
           </h1>
-          <p className="mt-3 text-cream/50">Manage your cafe content</p>
+          <p className="mt-3 text-cream/50">إدارة محتوى الكافيه</p>
         </div>
         <button
           onClick={logout}
           className="bg-error hover:bg-error/80 text-cream px-5 py-3 rounded-xl transition-colors font-medium"
         >
-          Logout
+          تسجيل الخروج
         </button>
       </div>
 

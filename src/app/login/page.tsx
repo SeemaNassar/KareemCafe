@@ -7,15 +7,19 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   async function handleLogin() {
     setLoading(true);
+    setError("");
     const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
     if (error) {
-      alert(error.message);
+      setError(error.message === "Invalid login credentials"
+        ? "البريد الإلكتروني أو كلمة المرور غير صحيحة"
+        : error.message);
       setLoading(false);
       return;
     }
@@ -34,21 +38,27 @@ export default function LoginPage() {
           </span>
           <div>
             <div className="font-display text-xl font-bold text-cream">
-              Kareem Cafe
+              كافيه كريم
             </div>
             <div className="text-xs uppercase tracking-[0.3em] text-gold">
-              Admin
+              لوحة الإدارة
             </div>
           </div>
         </div>
 
         <h1 className="font-display text-3xl font-bold text-cream mb-6">
-          Sign in
+          تسجيل الدخول
         </h1>
+
+        {error && (
+          <div className="mb-4 bg-error/15 border border-error/30 text-error rounded-xl px-4 py-3 text-sm">
+            {error}
+          </div>
+        )}
 
         <input
           type="email"
-          placeholder="Email"
+          placeholder="البريد الإلكتروني"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="w-full glass-light rounded-xl border-0 px-4 py-3 text-cream placeholder:text-cream/40 focus:ring-1 focus:ring-gold/40 outline-none transition mb-4"
@@ -56,7 +66,7 @@ export default function LoginPage() {
 
         <input
           type="password"
-          placeholder="Password"
+          placeholder="كلمة المرور"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           onKeyDown={(e) => e.key === "Enter" && handleLogin()}
@@ -68,7 +78,7 @@ export default function LoginPage() {
           disabled={loading}
           className="w-full bg-gold-gradient text-ink py-3 rounded-xl font-semibold hover:shadow-gold-glow transition-all duration-300 disabled:opacity-60"
         >
-          {loading ? "Signing in..." : "Login"}
+          {loading ? "جاري الدخول..." : "دخول"}
         </button>
       </div>
     </div>

@@ -14,6 +14,7 @@ export default function AddOfferForm() {
   const [requiredQty, setRequiredQty] = useState<number>(2);
   const [discountedPrice, setDiscountedPrice] = useState<number>(0);
   const [useDiscount, setUseDiscount] = useState(false);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     supabase
@@ -26,12 +27,18 @@ export default function AddOfferForm() {
   const selected = products.find((p) => p.id === Number(productId));
 
   async function handleAdd() {
+    if (!title.trim()) {
+      alert("يرجى إدخال عنوان العرض");
+      return;
+    }
+    setSaving(true);
     let imageUrl = "";
     if (imageFile) {
       try {
         imageUrl = await uploadImage(imageFile);
       } catch (err) {
         alert((err as Error).message);
+        setSaving(false);
         return;
       }
     }
@@ -49,6 +56,7 @@ export default function AddOfferForm() {
     const { error } = await supabase.from("offers").insert(payload);
     if (error) {
       alert(error.message);
+      setSaving(false);
       return;
     }
     location.reload();
@@ -60,13 +68,13 @@ export default function AddOfferForm() {
   return (
     <div className="glass rounded-3xl p-6 shadow-luxe">
       <input
-        placeholder="Title (e.g. 2 Mojitos for 30₪)"
+        placeholder="عنوان العرض (مثال: 2 موهيتو بـ 30₪)"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         className={inputClass}
       />
       <textarea
-        placeholder="Description"
+        placeholder="الوصف"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         className={inputClass}
@@ -84,7 +92,7 @@ export default function AddOfferForm() {
           onChange={(e) => setUseDiscount(e.target.checked)}
           className="accent-gold"
         />
-        Apply a quantity-based discount
+        تطبيق خصم حسب الكمية
       </label>
 
       {useDiscount && (
@@ -96,7 +104,7 @@ export default function AddOfferForm() {
             }
             className={inputClass}
           >
-            <option value="">Select product</option>
+            <option value="">اختر منتج</option>
             {products.map((p) => (
               <option key={p.id} value={p.id}>
                 {p.name} (₪{p.price})
@@ -108,7 +116,7 @@ export default function AddOfferForm() {
             min={2}
             value={requiredQty}
             onChange={(e) => setRequiredQty(Number(e.target.value))}
-            placeholder="Required qty"
+            placeholder="الكمية المطلوبة"
             className={inputClass}
           />
           <input
@@ -116,7 +124,7 @@ export default function AddOfferForm() {
             min={0}
             value={discountedPrice}
             onChange={(e) => setDiscountedPrice(Number(e.target.value))}
-            placeholder="Bundle price"
+            placeholder="سعر الباقة"
             className={inputClass}
           />
         </div>
@@ -124,16 +132,17 @@ export default function AddOfferForm() {
 
       {useDiscount && selected && requiredQty > 1 && discountedPrice > 0 && (
         <p className="text-sm text-emerald-400/90 mb-4">
-          Preview: {requiredQty} × {selected.name} for ₪{discountedPrice}{" "}
-          (normal ₪{(selected.price * requiredQty).toFixed(0)})
+          معاينة: {requiredQty} × {selected.name} بـ ₪{discountedPrice}{" "}
+          (السعر العادي ₪{(selected.price * requiredQty).toFixed(0)})
         </p>
       )}
 
       <button
         onClick={handleAdd}
-        className="bg-gold-gradient text-ink px-6 py-3 rounded-xl font-semibold hover:shadow-gold-glow transition-all"
+        disabled={saving}
+        className="bg-gold-gradient text-ink px-6 py-3 rounded-xl font-semibold hover:shadow-gold-glow transition-all disabled:opacity-60"
       >
-        Add Offer
+        {saving ? "جاري الحفظ..." : "إضافة العرض"}
       </button>
     </div>
   );

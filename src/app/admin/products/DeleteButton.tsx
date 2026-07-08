@@ -11,7 +11,7 @@ export default function DeleteButton({
   image: string | null;
 }) {
   async function handleDelete() {
-    if (!confirm("Delete this product?")) return;
+    if (!confirm("هل أنت متأكد من حذف هذا المنتج؟")) return;
     await removeImageByUrl(image);
     const { error } = await supabase.from("products").delete().eq("id", id);
     if (error) {
@@ -26,7 +26,7 @@ export default function DeleteButton({
       onClick={handleDelete}
       className="bg-error/20 hover:bg-error/30 text-error px-4 py-2 rounded-xl text-sm font-medium transition-colors"
     >
-      Delete
+      حذف
     </button>
   );
 }

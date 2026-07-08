@@ -10,7 +10,7 @@ export default function DeleteCategoryButton({
   name: string;
 }) {
   async function handleDelete() {
-    if (!confirm(`Delete ${name} and all its products?`)) return;
+    if (!confirm(`حذف "${name}" وجميع منتجاتها؟`)) return;
     const { error } = await supabase.from("categories").delete().eq("id", id);
     if (error) {
       alert(error.message);
@@ -24,7 +24,7 @@ export default function DeleteCategoryButton({
       onClick={handleDelete}
       className="bg-error/20 hover:bg-error/30 text-error px-4 py-2 rounded-xl text-sm font-medium transition-colors"
     >
-      Delete
+      حذف
     </button>
   );
 }

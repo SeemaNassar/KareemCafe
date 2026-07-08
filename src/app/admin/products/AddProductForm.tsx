@@ -13,6 +13,7 @@ export default function AddProductForm() {
   const [categoryId, setCategoryId] = useState("");
   const [featured, setFeatured] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     supabase
@@ -22,15 +23,21 @@ export default function AddProductForm() {
   }, []);
 
   async function handleSubmit() {
-    if (!imageFile) {
-      alert("Select image");
+    if (!name.trim() || !price || !categoryId) {
+      alert("يرجى تعبئة جميع الحقول المطلوبة");
       return;
     }
+    if (!imageFile) {
+      alert("يرجى اختيار صورة للمنتج");
+      return;
+    }
+    setSaving(true);
     let publicUrl: string;
     try {
       publicUrl = await uploadImage(imageFile);
     } catch (err) {
       alert((err as Error).message);
+      setSaving(false);
       return;
     }
 
@@ -44,6 +51,7 @@ export default function AddProductForm() {
     });
     if (error) {
       alert(error.message);
+      setSaving(false);
       return;
     }
     location.reload();
@@ -55,23 +63,23 @@ export default function AddProductForm() {
   return (
     <div className="glass rounded-3xl p-8 shadow-luxe mb-10">
       <h2 className="font-display text-2xl font-bold text-cream mb-6">
-        Add Product
+        إضافة منتج
       </h2>
       <input
-        placeholder="Name"
+        placeholder="اسم المنتج"
         value={name}
         onChange={(e) => setName(e.target.value)}
         className={inputClass}
       />
       <textarea
-        placeholder="Description"
+        placeholder="الوصف"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
         className={inputClass}
       />
       <input
         type="number"
-        placeholder="Price"
+        placeholder="السعر (₪)"
         value={price}
         onChange={(e) => setPrice(e.target.value)}
         className={inputClass}
@@ -81,7 +89,7 @@ export default function AddProductForm() {
         onChange={(e) => setCategoryId(e.target.value)}
         className={inputClass}
       >
-        <option value="">Select Category</option>
+        <option value="">اختر التصنيف</option>
         {categories.map((category) => (
           <option key={category.id} value={category.id}>
             {category.name}
@@ -100,13 +108,14 @@ export default function AddProductForm() {
           onChange={(e) => setFeatured(e.target.checked)}
           className="accent-gold"
         />
-        Featured Product
+        منتج مميز
       </label>
       <button
         onClick={handleSubmit}
-        className="bg-gold-gradient text-ink px-6 py-3 rounded-xl font-semibold hover:shadow-gold-glow transition-all"
+        disabled={saving}
+        className="bg-gold-gradient text-ink px-6 py-3 rounded-xl font-semibold hover:shadow-gold-glow transition-all disabled:opacity-60"
       >
-        Add Product
+        {saving ? "جاري الحفظ..." : "إضافة المنتج"}
       </button>
     </div>
   );

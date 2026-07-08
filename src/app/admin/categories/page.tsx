@@ -11,15 +11,15 @@ export default async function CategoriesPage() {
   return (
     <div className="min-h-screen bg-ink p-8 md:p-12 text-cream">
       <h1 className="font-display text-4xl font-bold text-cream mb-10">
-        Categories
+        التصنيفات
       </h1>
       <AddCategoryForm />
       <div className="mt-10 overflow-hidden rounded-2xl glass shadow-luxe">
         <table className="w-full">
           <thead>
-            <tr className="border-b border-gold/15 text-left text-xs uppercase tracking-[0.2em] text-gold">
-              <th className="p-5">Name</th>
-              <th className="p-5">Actions</th>
+            <tr className="border-b border-gold/15 text-right text-xs uppercase tracking-[0.2em] text-gold">
+              <th className="p-5">الاسم</th>
+              <th className="p-5">إجراءات</th>
             </tr>
           </thead>
           <tbody>

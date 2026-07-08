@@ -1,10 +1,10 @@
-import { getSupabaseServerClient } from "../../../lib/supabase";
+import { getSupabaseAdminClient } from "../../../lib/supabase";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 
 export const dynamic = "force-dynamic";
 
 export default async function AnalyticsPage() {
-  const supabase = getSupabaseServerClient();
+  const supabase = getSupabaseAdminClient();
 
   const since = new Date();
   since.setDate(since.getDate() - 90);
@@ -20,8 +20,9 @@ export default async function AnalyticsPage() {
     .select("product_id, product_name, quantity, line_total, order_id, created_at")
     .gte("created_at", since.toISOString());
 
-  console.log("orders:", orders?.length, ordersError);
-  console.log("items:", orderItems?.length, itemsError);
+  if (ordersError || itemsError) {
+    console.error("Analytics fetch error:", ordersError, itemsError);
+  }
 
   return (
     <AnalyticsDashboard

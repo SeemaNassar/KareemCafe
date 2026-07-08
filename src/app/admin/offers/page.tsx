@@ -11,7 +11,7 @@ export default async function OffersPage() {
   return (
     <div className="min-h-screen bg-ink p-8 md:p-12 text-cream">
       <h1 className="font-display text-4xl font-bold text-cream mb-10">
-        Offers
+        العروض
       </h1>
       <AddOfferForm />
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mt-10">
@@ -44,7 +44,7 @@ export default async function OffersPage() {
                       : "bg-error/20 text-error"
                   }`}
                 >
-                  {offer.active ? "Active" : "Hidden"}
+                  {offer.active ? "مفعّل" : "مخفي"}
                 </span>
                 <DeleteOfferButton offer={offer} />
               </div>
