@@ -23,9 +23,7 @@ export default function LoginPage() {
       setLoading(false);
       return;
     }
-    setTimeout(() => {
-      window.location.href = "/admin";
-    }, 600);
+    window.location.href = "/admin";
   }
 
   return (
