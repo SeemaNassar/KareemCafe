@@ -1,10 +1,10 @@
-import { getSupabaseAdminClient } from "../../../lib/supabase";
+import { getSupabaseServerClient } from "../../../lib/supabase";
 import AnalyticsDashboard from "./AnalyticsDashboard";
 
 export const dynamic = "force-dynamic";
 
 export default async function AnalyticsPage() {
-  const supabase = getSupabaseAdminClient();
+  const supabase = getSupabaseServerClient();
 
   const since = new Date();
   since.setDate(since.getDate() - 90);
