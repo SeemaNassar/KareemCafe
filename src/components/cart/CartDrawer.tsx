@@ -234,13 +234,13 @@ export default function CartDrawer() {
                   </div>
 
                   <input
-                    placeholder="الاسم"
+                    placeholder="الاسم (اختياري)"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="w-full glass-light rounded-xl border-0 px-4 py-3 text-cream placeholder:text-cream/40 focus:ring-1 focus:ring-gold/40 outline-none transition"
                   />
                   <input
-                    placeholder="رقم الهاتف"
+                    placeholder="رقم الهاتف *"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full glass-light rounded-xl border-0 px-4 py-3 text-cream placeholder:text-cream/40 focus:ring-1 focus:ring-gold/40 outline-none transition"

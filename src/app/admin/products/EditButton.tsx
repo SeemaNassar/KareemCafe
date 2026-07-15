@@ -102,6 +102,7 @@ export default function EditButton({ product }: { product: Product }) {
             />
             <input
               type="number"
+              min={1}
               value={price}
               onChange={(e) => setPrice(Number(e.target.value))}
               placeholder="السعر الأساسي"

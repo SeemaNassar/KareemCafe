@@ -11,8 +11,9 @@ export default function AddOfferForm() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [products, setProducts] = useState<Product[]>([]);
   const [productId, setProductId] = useState<number | "">("");
+  const [sizeLabel, setSizeLabel] = useState<string>("");
   const [requiredQty, setRequiredQty] = useState<number>(2);
-  const [discountedPrice, setDiscountedPrice] = useState<number>(0);
+  const [discountedPrice, setDiscountedPrice] = useState<number>(1);
   const [useDiscount, setUseDiscount] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -25,10 +26,24 @@ export default function AddOfferForm() {
   }, []);
 
   const selected = products.find((p) => p.id === Number(productId));
+  const hasSizes = !!(selected?.sizes && selected.sizes.length > 0);
+
+  // Reset size when product changes
+  useEffect(() => {
+    setSizeLabel("");
+  }, [productId]);
 
   async function handleAdd() {
     if (!title.trim()) {
       alert("يرجى إدخال عنوان العرض");
+      return;
+    }
+    if (useDiscount && productId === "") {
+      alert("يرجى اختيار منتج للخصم");
+      return;
+    }
+    if (useDiscount && hasSizes && !sizeLabel) {
+      alert("يرجى اختيار حجم المنتج للعرض");
       return;
     }
     setSaving(true);
@@ -51,6 +66,7 @@ export default function AddOfferForm() {
       product_id: useDiscount && productId !== "" ? Number(productId) : null,
       required_quantity: useDiscount && requiredQty > 1 ? requiredQty : null,
       discounted_price: useDiscount ? discountedPrice : null,
+      size_label: useDiscount && sizeLabel ? sizeLabel : null,
     };
 
     const { error } = await supabase.from("offers").insert(payload);
@@ -64,6 +80,15 @@ export default function AddOfferForm() {
 
   const inputClass =
     "w-full glass-light rounded-xl border-0 px-4 py-3 text-cream placeholder:text-cream/40 focus:ring-1 focus:ring-gold/40 outline-none transition mb-3 bg-transparent";
+
+  const previewBasePrice = (() => {
+    if (!selected) return 0;
+    if (hasSizes) {
+      const s = selected.sizes!.find((x) => x.label === sizeLabel);
+      return s ? Number(s.price) : 0;
+    }
+    return Number(selected.price);
+  })();
 
   return (
     <div className="glass rounded-3xl p-6 shadow-luxe">
@@ -96,7 +121,7 @@ export default function AddOfferForm() {
       </label>
 
       {useDiscount && (
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
           <select
             value={productId}
             onChange={(e) =>
@@ -107,23 +132,39 @@ export default function AddOfferForm() {
             <option value="">اختر منتج</option>
             {products.map((p) => (
               <option key={p.id} value={p.id}>
-                {p.name} (₪{p.price})
+                {p.name}
               </option>
             ))}
           </select>
+
+          {hasSizes && (
+            <select
+              value={sizeLabel}
+              onChange={(e) => setSizeLabel(e.target.value)}
+              className={inputClass}
+            >
+              <option value="">اختر حجم</option>
+              {selected!.sizes!.map((s) => (
+                <option key={s.label} value={s.label}>
+                  {s.label} (₪{Number(s.price).toFixed(0)})
+                </option>
+              ))}
+            </select>
+          )}
+
           <input
             type="number"
             min={2}
             value={requiredQty}
-            onChange={(e) => setRequiredQty(Number(e.target.value))}
+            onChange={(e) => setRequiredQty(Math.max(2, Number(e.target.value)))}
             placeholder="الكمية المطلوبة"
             className={inputClass}
           />
           <input
             type="number"
-            min={0}
+            min={1}
             value={discountedPrice}
-            onChange={(e) => setDiscountedPrice(Number(e.target.value))}
+            onChange={(e) => setDiscountedPrice(Math.max(1, Number(e.target.value)))}
             placeholder="سعر الباقة"
             className={inputClass}
           />
@@ -132,8 +173,9 @@ export default function AddOfferForm() {
 
       {useDiscount && selected && requiredQty > 1 && discountedPrice > 0 && (
         <p className="text-sm text-emerald-400/90 mb-4">
-          معاينة: {requiredQty} × {selected.name} بـ ₪{discountedPrice}{" "}
-          (السعر العادي ₪{(selected.price * requiredQty).toFixed(0)})
+          معاينة: {requiredQty} × {selected.name}
+          {sizeLabel ? ` (${sizeLabel})` : ""} بـ ₪{discountedPrice}{" "}
+          (السعر العادي ₪{(previewBasePrice * requiredQty).toFixed(0)})
         </p>
       )}
 

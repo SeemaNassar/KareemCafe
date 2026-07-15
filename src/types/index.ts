@@ -31,6 +31,7 @@ export type Offer = {
   product_id: number | null;
   required_quantity: number | null;
   discounted_price: number | null;
+  size_label: string | null;
 };
 
 export type GalleryImage = {

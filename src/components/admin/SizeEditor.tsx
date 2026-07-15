@@ -57,8 +57,9 @@ export default function SizeEditor({ sizes, onChange }: Props) {
               />
               <input
                 type="number"
+                min={1}
                 value={size.price}
-                onChange={(e) => updateSize(i, "price", Number(e.target.value))}
+                onChange={(e) => updateSize(i, "price", Math.max(1, Number(e.target.value)))}
                 placeholder="السعر"
                 className="w-24 glass-light rounded-xl border-0 px-3 py-2.5 text-cream placeholder:text-cream/40 focus:ring-1 focus:ring-gold/40 outline-none transition text-sm bg-transparent"
               />

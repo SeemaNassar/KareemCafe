@@ -23,7 +23,6 @@ export function validateOrder(
   const errors: string[] = [];
 
   if (items.length === 0) errors.push("السلة فارغة");
-  if (!customer.name.trim()) errors.push("الاسم مطلوب");
   if (!customer.phone.trim()) errors.push("رقم الهاتف مطلوب");
   if (customer.phone.trim() && customer.phone.trim().length < 7)
     errors.push("رقم الهاتف غير صحيح");

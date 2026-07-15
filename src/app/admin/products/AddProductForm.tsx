@@ -93,6 +93,7 @@ export default function AddProductForm() {
       />
       <input
         type="number"
+        min={1}
         placeholder="السعر الأساسي (₪) — يستخدم إذا لا توجد أحجام"
         value={price}
         onChange={(e) => setPrice(e.target.value)}

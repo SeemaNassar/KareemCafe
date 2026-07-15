@@ -38,6 +38,12 @@ export default async function OffersPage() {
                 {offer.title}
               </h3>
               <p className="mt-2 text-cream/55 text-sm">{offer.description}</p>
+              {offer.required_quantity && offer.discounted_price != null && (
+                <p className="mt-2 text-sm text-gold/80">
+                  {offer.required_quantity}×
+                  {offer.size_label ? ` ${offer.size_label}` : ""} بـ ₪{Number(offer.discounted_price).toFixed(0)}
+                </p>
+              )}
               <div className="mt-4 flex justify-between items-center">
                 <span
                   className={`text-xs px-3 py-1 rounded-full ${

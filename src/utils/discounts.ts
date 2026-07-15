@@ -52,32 +52,42 @@ export function isApplicableOffer(offer: Offer): boolean {
 }
 
 /**
- * Select the best applicable offer per product. When two offers target the
- * same product, the one with the lower normal-price-per-bundle wins (steeper
- * discount). Returns a Map keyed by product_id for O(1) lookup during pricing.
+ * Build a composite key for matching offers to cart lines.
+ * An offer with size_label = NULL matches cart lines with sizeLabel = NULL
+ * (single-size products). An offer with a specific size_label matches only
+ * cart lines with that exact size.
+ */
+function offerKey(productId: number, sizeLabel: string | null): string {
+  return `${productId}::${sizeLabel ?? ""}`;
+}
+
+/**
+ * Select the best applicable offer per product+size. When two offers target
+ * the same product and size, the one with the lower bundle price wins.
+ * Returns a Map keyed by `product_id::size_label` for O(1) lookup.
  */
 export function selectBestOfferPerProduct(
   offers: ReadonlyArray<Offer>,
   productsById: ReadonlyMap<number, { price: number }>,
   items: ReadonlyArray<CartItem>
-): Map<number, Offer> {
-  const best = new Map<number, Offer>();
-  const inCart = new Set(items.map((i) => i.id));
+): Map<string, Offer> {
+  const best = new Map<string, Offer>();
+  const inCart = new Set(items.map((i) => offerKey(i.id, i.sizeLabel ?? null)));
   for (const offer of offers) {
     if (!isApplicableOffer(offer)) continue;
     if (offer.product_id == null) continue;
-    // Skip offers for products not in the cart — no impact, avoids noise.
-    if (!inCart.has(offer.product_id)) continue;
+    const key = offerKey(offer.product_id, offer.size_label);
+    // Skip offers for product+size combos not in the cart.
+    if (!inCart.has(key)) continue;
     const product = productsById.get(offer.product_id);
     if (!product) continue;
-    const current = best.get(offer.product_id);
+    const current = best.get(key);
     if (!current) {
-      best.set(offer.product_id, offer);
+      best.set(key, offer);
       continue;
     }
-    // Compare effective per-bundle price; keep the cheaper one.
     if ((offer.discounted_price ?? 0) < (current.discounted_price ?? 0)) {
-      best.set(offer.product_id, offer);
+      best.set(key, offer);
     }
   }
   return best;
@@ -106,7 +116,8 @@ export function computeDiscountBreakdown(
     const normalLine = round2(item.price * item.quantity);
     subtotal += normalLine;
 
-    const offer = bestOffers.get(item.id);
+    const key = offerKey(item.id, item.sizeLabel ?? null);
+    const offer = bestOffers.get(key);
     if (!offer || offer.required_quantity == null || offer.discounted_price == null) {
       continue;
     }
