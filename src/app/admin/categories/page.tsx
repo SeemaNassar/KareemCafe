@@ -2,6 +2,7 @@ import { fetchCategories } from "../../../services/home";
 import AddCategoryForm from "./AddCategoryForm";
 import EditCategoryButton from "./EditCategoryButton";
 import DeleteCategoryButton from "./DeleteCategoryButton";
+import AdminBackButton from "../AdminBackButton";
 
 export const dynamic = "force-dynamic";
 
@@ -10,6 +11,7 @@ export default async function CategoriesPage() {
 
   return (
     <div className="min-h-screen bg-ink p-8 md:p-12 text-cream">
+      <AdminBackButton />
       <h1 className="font-display text-4xl font-bold text-cream mb-10">
         التصنيفات
       </h1>

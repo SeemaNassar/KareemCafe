@@ -1,6 +1,7 @@
 import DeleteButton from "./DeleteButton";
 import EditButton from "./EditButton";
 import AddProductForm from "./AddProductForm";
+import AdminBackButton from "../AdminBackButton";
 import { fetchProducts } from "../../../services/home";
 
 export const dynamic = "force-dynamic";
@@ -10,6 +11,7 @@ export default async function ProductsAdmin() {
 
   return (
     <div className="min-h-screen bg-ink p-8 md:p-12 text-cream">
+      <AdminBackButton />
       <h1 className="font-display text-4xl font-bold text-cream mb-10">
         المنتجات
       </h1>
@@ -20,6 +22,7 @@ export default async function ProductsAdmin() {
             <tr className="border-b border-gold/15 text-right text-xs uppercase tracking-[0.2em] text-gold">
               <th className="p-5">الاسم</th>
               <th className="p-5">السعر</th>
+              <th className="p-5">الأحجام</th>
               <th className="p-5">مميز</th>
               <th className="p-5">إجراءات</th>
             </tr>
@@ -32,7 +35,14 @@ export default async function ProductsAdmin() {
               >
                 <td className="p-5 font-medium">{product.name}</td>
                 <td className="p-5 text-gold-gradient font-semibold">
-                  ₪{product.price}
+                  {product.sizes && product.sizes.length > 0
+                    ? `${product.sizes.length} أحجام`
+                    : `₪${product.price}`}
+                </td>
+                <td className="p-5 text-cream/60 text-sm">
+                  {product.sizes && product.sizes.length > 0
+                    ? product.sizes.map((s) => s.label).join("، ")
+                    : "—"}
                 </td>
                 <td className="p-5">{product.featured ? "⭐" : "—"}</td>
                 <td className="p-5">

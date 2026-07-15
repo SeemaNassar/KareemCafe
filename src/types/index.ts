@@ -4,6 +4,11 @@ export type Category = {
   created_at: string;
 };
 
+export type ProductSize = {
+  label: string;
+  price: number;
+};
+
 export type Product = {
   id: number;
   name: string;
@@ -12,6 +17,7 @@ export type Product = {
   image: string | null;
   featured: boolean | null;
   category_id: number | null;
+  sizes: ProductSize[] | null;
   created_at: string;
 };
 
@@ -44,7 +50,7 @@ export type SiteSettings = {
 
 export type ProductSummary = Pick<
   Product,
-  "id" | "name" | "description" | "price" | "image" | "featured" | "category_id"
+  "id" | "name" | "description" | "price" | "image" | "featured" | "category_id" | "sizes"
 >;
 
 export type SettingsSummary = Pick<
@@ -58,6 +64,16 @@ export type CartItem = {
   image: string;
   price: number;
   quantity: number;
+  sizeLabel?: string;
+};
+
+export type BestSeller = {
+  product_id: number;
+  product_name: string;
+  product_image: string | null;
+  product_price: number;
+  product_sizes: ProductSize[] | null;
+  total_sold: number;
 };
 
 export type QueryResult<T> = { data: T | null; error: Error | null };

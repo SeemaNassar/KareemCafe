@@ -1,5 +1,6 @@
 import { getSupabaseServerClient } from "../../../lib/supabase";
 import AnalyticsDashboard from "./AnalyticsDashboard";
+import AdminBackButton from "../AdminBackButton";
 
 export const dynamic = "force-dynamic";
 
@@ -25,9 +26,14 @@ export default async function AnalyticsPage() {
   }
 
   return (
-    <AnalyticsDashboard
-      orders={orders ?? []}
-      orderItems={orderItems ?? []}
-    />
+    <>
+      <div className="max-w-6xl mx-auto px-4 pt-8">
+        <AdminBackButton />
+      </div>
+      <AnalyticsDashboard
+        orders={orders ?? []}
+        orderItems={orderItems ?? []}
+      />
+    </>
   );
 }

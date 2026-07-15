@@ -77,6 +77,7 @@ export async function saveOrder(
     quantity: item.quantity,
     unit_price: item.price,
     line_total: item.price * item.quantity,
+    size_label: item.sizeLabel ?? null,
   }));
 
   const { error: itemsError } = await supabase.from("order_items").insert(orderItems);

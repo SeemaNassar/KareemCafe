@@ -6,6 +6,7 @@ import type {
   SettingsSummary,
   SiteSettings,
   Category,
+  BestSeller,
 } from "../types";
 
 /**
@@ -89,18 +90,30 @@ export type HomePayload = {
   products: Product[];
   categories: Category[];
   gallery: GalleryImage[];
+  bestSellers: BestSeller[];
 };
 
+export async function fetchBestSellers(limit = 6): Promise<BestSeller[]> {
+  const { data, error } = await getSupabaseServerClient()
+    .from("best_sellers")
+    .select("*")
+    .order("total_sold", { ascending: false })
+    .limit(limit);
+  if (error || !data) return [];
+  return data as BestSeller[];
+}
+
 export async function fetchHomePayload(): Promise<HomePayload> {
-  const [settings, offers, products, categories, gallery] =
+  const [settings, offers, products, categories, gallery, bestSellers] =
     await Promise.all([
       fetchSettings(),
       fetchActiveOffers(),
       fetchProducts(),
       fetchCategories(),
       fetchActiveGallery(),
+      fetchBestSellers(6),
     ]);
-  return { settings, offers, products, categories, gallery };
+  return { settings, offers, products, categories, gallery, bestSellers };
 }
 
 export type { SiteSettings };

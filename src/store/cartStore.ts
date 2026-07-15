@@ -8,10 +8,14 @@ type CartStore = {
   openCart: () => void;
   closeCart: () => void;
   addItem: (item: Omit<CartItem, "quantity">) => void;
-  increase: (id: number) => void;
-  decrease: (id: number) => void;
-  removeItem: (id: number) => void;
+  increase: (id: number, sizeLabel?: string) => void;
+  decrease: (id: number, sizeLabel?: string) => void;
+  removeItem: (id: number, sizeLabel?: string) => void;
 };
+
+function matches(item: CartItem, id: number, sizeLabel?: string) {
+  return item.id === id && (item.sizeLabel ?? null) === (sizeLabel ?? null);
+}
 
 export const useCartStore = create<CartStore>((set) => ({
   items: [],
@@ -22,35 +26,37 @@ export const useCartStore = create<CartStore>((set) => ({
 
   addItem: (item) =>
     set((state) => {
-      const existing = state.items.find((i) => i.id === item.id);
+      const existing = state.items.find((i) => matches(i, item.id, item.sizeLabel));
       if (existing) {
         return {
           items: state.items.map((i) =>
-            i.id === item.id ? { ...i, quantity: i.quantity + 1 } : i
+            matches(i, item.id, item.sizeLabel)
+              ? { ...i, quantity: i.quantity + 1 }
+              : i
           ),
         };
       }
       return { items: [...state.items, { ...item, quantity: 1 }] };
     }),
 
-  increase: (id) =>
+  increase: (id, sizeLabel) =>
     set((state) => ({
       items: state.items.map((i) =>
-        i.id === id ? { ...i, quantity: i.quantity + 1 } : i
+        matches(i, id, sizeLabel) ? { ...i, quantity: i.quantity + 1 } : i
       ),
     })),
 
-  decrease: (id) =>
+  decrease: (id, sizeLabel) =>
     set((state) => ({
       items: state.items
         .map((i) =>
-          i.id === id ? { ...i, quantity: i.quantity - 1 } : i
+          matches(i, id, sizeLabel) ? { ...i, quantity: i.quantity - 1 } : i
         )
         .filter((i) => i.quantity > 0),
     })),
 
-  removeItem: (id) =>
+  removeItem: (id, sizeLabel) =>
     set((state) => ({
-      items: state.items.filter((item) => item.id !== id),
+      items: state.items.filter((item) => !matches(item, id, sizeLabel)),
     })),
 }));

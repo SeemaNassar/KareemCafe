@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "../../../lib/supabase-browser";
 import { uploadImage } from "../../../utils/storage";
-import type { Category } from "../../../types";
+import SizeEditor from "../../../components/admin/SizeEditor";
+import type { Category, ProductSize } from "../../../types";
 
 export default function AddProductForm() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -13,6 +14,7 @@ export default function AddProductForm() {
   const [categoryId, setCategoryId] = useState("");
   const [featured, setFeatured] = useState(false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [sizes, setSizes] = useState<ProductSize[]>([]);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
@@ -23,12 +25,23 @@ export default function AddProductForm() {
   }, []);
 
   async function handleSubmit() {
-    if (!name.trim() || !price || !categoryId) {
-      alert("يرجى تعبئة جميع الحقول المطلوبة");
+    if (!name.trim() || !categoryId) {
+      alert("يرجى تعبئة الاسم والتصنيف");
       return;
     }
     if (!imageFile) {
       alert("يرجى اختيار صورة للمنتج");
+      return;
+    }
+    if (sizes.length === 0 && !price) {
+      alert("يرجى إدخال السعر أو إضافة حجم واحد على الأقل");
+      return;
+    }
+    const validSizes = sizes
+      .filter((s) => s.label.trim() && s.price > 0)
+      .map((s) => ({ label: s.label.trim(), price: Number(s.price) }));
+    if (sizes.length > 0 && validSizes.length !== sizes.length) {
+      alert("يرجى إكمال جميع الأحجام (اسم وسعر)");
       return;
     }
     setSaving(true);
@@ -44,10 +57,11 @@ export default function AddProductForm() {
     const { error } = await supabase.from("products").insert({
       name,
       description,
-      price: Number(price),
+      price: Number(price) || 0,
       image: publicUrl,
       category_id: Number(categoryId),
       featured,
+      sizes: validSizes.length > 0 ? validSizes : null,
     });
     if (error) {
       alert(error.message);
@@ -79,11 +93,12 @@ export default function AddProductForm() {
       />
       <input
         type="number"
-        placeholder="السعر (₪)"
+        placeholder="السعر الأساسي (₪) — يستخدم إذا لا توجد أحجام"
         value={price}
         onChange={(e) => setPrice(e.target.value)}
         className={inputClass}
       />
+      <SizeEditor sizes={sizes} onChange={setSizes} />
       <select
         value={categoryId}
         onChange={(e) => setCategoryId(e.target.value)}

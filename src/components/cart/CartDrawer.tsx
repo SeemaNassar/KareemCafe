@@ -138,7 +138,7 @@ export default function CartDrawer() {
                 <AnimatePresence mode="popLayout">
                   {items.map((item) => (
                     <motion.div
-                      key={item.id}
+                      key={`${item.id}-${item.sizeLabel ?? "default"}`}
                       layout
                       initial={{ opacity: 0, x: 30 }}
                       animate={{ opacity: 1, x: 0 }}
@@ -163,12 +163,17 @@ export default function CartDrawer() {
                         <div className="font-semibold text-cream truncate">
                           {item.name}
                         </div>
+                        {item.sizeLabel && (
+                          <div className="mt-0.5 text-xs text-cream/50">
+                            الحجم: {item.sizeLabel}
+                          </div>
+                        )}
                         <div className="mt-1 font-display text-gold-gradient font-bold">
                           ₪{item.price}
                         </div>
                         <div className="mt-3 flex items-center gap-3">
                           <button
-                            onClick={() => decrease(item.id)}
+                            onClick={() => decrease(item.id, item.sizeLabel)}
                             className="grid place-items-center w-7 h-7 rounded-full glass-light text-cream hover:text-gold transition-colors"
                           >
                             <Minus className="w-3.5 h-3.5" />
@@ -177,7 +182,7 @@ export default function CartDrawer() {
                             {item.quantity}
                           </span>
                           <button
-                            onClick={() => increase(item.id)}
+                            onClick={() => increase(item.id, item.sizeLabel)}
                             className="grid place-items-center w-7 h-7 rounded-full bg-gold-gradient text-ink"
                           >
                             <Plus className="w-3.5 h-3.5" />
@@ -185,7 +190,7 @@ export default function CartDrawer() {
                         </div>
                       </div>
                       <button
-                        onClick={() => removeItem(item.id)}
+                        onClick={() => removeItem(item.id, item.sizeLabel)}
                         className="self-start text-error/70 hover:text-error transition-colors p-1"
                         aria-label="Remove item"
                       >

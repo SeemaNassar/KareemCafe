@@ -7,10 +7,28 @@ import { Plus, Star } from "lucide-react";
 import { useCartStore } from "../../store/cartStore";
 import type { ProductSummary } from "../../types";
 
-type Props = { product: ProductSummary };
+type Props = {
+  product: ProductSummary;
+  onOpenDetail?: (product: ProductSummary) => void;
+};
 
-function ProductCardBase({ product }: Props) {
+function ProductCardBase({ product, onOpenDetail }: Props) {
   const addItem = useCartStore((s) => s.addItem);
+
+  const hasSizes = !!(product.sizes && product.sizes.length > 0);
+
+  function handleAdd() {
+    if (hasSizes && onOpenDetail) {
+      onOpenDetail(product);
+      return;
+    }
+    addItem({
+      id: product.id,
+      name: product.name,
+      image: product.image || "",
+      price: Number(product.price),
+    });
+  }
 
   return (
     <motion.article
@@ -18,7 +36,11 @@ function ProductCardBase({ product }: Props) {
       transition={{ type: "spring", stiffness: 300, damping: 22 }}
       className="group relative overflow-hidden rounded-[1.75rem] glass shadow-luxe flex flex-col"
     >
-      <div className="relative aspect-[4/3] overflow-hidden">
+      <button
+        onClick={handleAdd}
+        className="relative aspect-[4/3] overflow-hidden text-right"
+        aria-label={hasSizes ? `اختر حجم ${product.name}` : `أضف ${product.name} للسلة`}
+      >
         <Image
           src={
             product.image ||
@@ -39,7 +61,13 @@ function ProductCardBase({ product }: Props) {
             الأكثر طلباً
           </div>
         )}
-      </div>
+
+        {hasSizes && (
+          <div className="absolute top-4 right-4 glass-dark px-3 py-1.5 rounded-full text-xs font-medium text-cream/80">
+            عدة أحجام
+          </div>
+        )}
+      </button>
 
       <div className="p-6 flex flex-col flex-1">
         <h3 className="font-display text-xl font-bold text-cream group-hover:text-gold-gradient transition-all duration-300">
@@ -52,22 +80,26 @@ function ProductCardBase({ product }: Props) {
         )}
 
         <div className="mt-6 flex items-center justify-between">
-          <span className="font-display text-2xl font-bold text-gold-gradient">
-            ₪{Number(product.price).toFixed(0)}
-          </span>
+          <div className="flex flex-col">
+            {hasSizes ? (
+              <>
+                <span className="text-xs text-cream/40">يبدأ من</span>
+                <span className="font-display text-2xl font-bold text-gold-gradient">
+                  ₪{Math.min(...product.sizes!.map((s) => Number(s.price))).toFixed(0)}
+                </span>
+              </>
+            ) : (
+              <span className="font-display text-2xl font-bold text-gold-gradient">
+                ₪{Number(product.price).toFixed(0)}
+              </span>
+            )}
+          </div>
           <button
-            onClick={() =>
-              addItem({
-                id: product.id,
-                name: product.name,
-                image: product.image || "",
-                price: Number(product.price),
-              })
-            }
+            onClick={handleAdd}
             className="group/btn flex items-center gap-2 bg-gold-gradient text-ink px-5 py-2.5 rounded-full text-sm font-semibold hover:shadow-gold-glow transition-all duration-300 hover:-translate-y-0.5"
           >
             <Plus className="w-4 h-4" />
-            أضف
+            {hasSizes ? "اختر" : "أضف"}
           </button>
         </div>
       </div>

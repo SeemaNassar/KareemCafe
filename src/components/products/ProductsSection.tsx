@@ -7,9 +7,10 @@ import { fadeUp } from "../../lib/animations";
 import SectionHeading from "../ui/SectionHeading";
 import { ProductCard } from "./ProductCard";
 import MenuSection from "./MenuSection";
+import ProductDetailModal from "./ProductDetailModal";
 import { useRealtimeQuery } from "../../hooks/useRealtimeQuery";
 import { supabase } from "../../lib/supabase-browser";
-import type { Product, Category, QueryResult } from "../../types";
+import type { Product, Category, QueryResult, ProductSummary } from "../../types";
 
 type Props = {
   initialProducts: Product[];
@@ -23,6 +24,7 @@ export default function ProductsSection({
   const [products, setProducts] = useState<Product[]>(initialProducts);
   const [categories, setCategories] =
     useState<Category[]>(initialCategories);
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
 
   const fetchProducts = useCallback(async (): Promise<
     QueryResult<Product[]>
@@ -71,18 +73,17 @@ export default function ProductsSection({
       <div className="absolute inset-0 bg-grain opacity-30" />
 
       <div className="relative max-w-7xl mx-auto">
-        <SectionHeading // eyebrow="Signature Craft"
-eyebrow="إبداعاتنا"
-
-// title="Our Menu"
-title="قائمتنا" />
+        <SectionHeading eyebrow="إبداعاتنا" title="قائمتنا" />
 
         {featured.length > 0 && (
           <div className="mt-16">
             <StaggerGroup className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {featured.map((p) => (
                 <motion.div key={p.id} variants={fadeUp}>
-                  <ProductCard product={p} />
+                  <ProductCard
+                    product={p}
+                    onOpenDetail={(prod: ProductSummary) => setDetailProduct(prod as Product)}
+                  />
                 </motion.div>
               ))}
             </StaggerGroup>
@@ -99,6 +100,11 @@ title="قائمتنا" />
           />
         </div>
       </div>
+
+      <ProductDetailModal
+        product={detailProduct}
+        onClose={() => setDetailProduct(null)}
+      />
     </section>
   );
 }

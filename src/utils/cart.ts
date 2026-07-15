@@ -65,7 +65,9 @@ export function buildWhatsAppOrderLink(
   const deliveryFee = orderType === "delivery" ? DELIVERY_FEE : 0;
   const total = round2(breakdown.discountedTotal + deliveryFee);
 
-  const lines = items.map((i) => `${i.name} x${i.quantity}`).join("\n");
+  const lines = items
+    .map((i) => `${i.name}${i.sizeLabel ? ` (${i.sizeLabel})` : ""} x${i.quantity}`)
+    .join("\n");
 
   const offerLines = breakdown.applied.length
     ? `\nالخصومات:\n${breakdown.applied

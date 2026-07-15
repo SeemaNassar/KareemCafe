@@ -4,7 +4,8 @@ import { useState } from "react";
 import Image from "next/image";
 import { supabase } from "../../../lib/supabase-browser";
 import { uploadImage, removeImageByUrl } from "../../../utils/storage";
-import type { Product } from "../../../types";
+import SizeEditor from "../../../components/admin/SizeEditor";
+import type { Product, ProductSize } from "../../../types";
 
 export default function EditButton({ product }: { product: Product }) {
   const [open, setOpen] = useState(false);
@@ -13,6 +14,7 @@ export default function EditButton({ product }: { product: Product }) {
   const [price, setPrice] = useState(product.price);
   const [featured, setFeatured] = useState(product.featured ?? false);
   const [imageFile, setImageFile] = useState<File | null>(null);
+  const [sizes, setSizes] = useState<ProductSize[]>(product.sizes ?? []);
   const [saving, setSaving] = useState(false);
 
   async function save() {
@@ -29,9 +31,20 @@ export default function EditButton({ product }: { product: Product }) {
       }
     }
 
+    const validSizes = sizes
+      .filter((s) => s.label.trim() && s.price > 0)
+      .map((s) => ({ label: s.label.trim(), price: Number(s.price) }));
+
     const { error } = await supabase
       .from("products")
-      .update({ name, description, price, featured, image: imageUrl })
+      .update({
+        name,
+        description,
+        price,
+        featured,
+        image: imageUrl,
+        sizes: validSizes.length > 0 ? validSizes : null,
+      })
       .eq("id", product.id);
     if (error) {
       alert(error.message);
@@ -91,9 +104,10 @@ export default function EditButton({ product }: { product: Product }) {
               type="number"
               value={price}
               onChange={(e) => setPrice(Number(e.target.value))}
-              placeholder="السعر"
+              placeholder="السعر الأساسي"
               className={inputClass}
             />
+            <SizeEditor sizes={sizes} onChange={setSizes} />
             <label className="flex items-center gap-2 mb-5 text-cream/70">
               <input
                 type="checkbox"

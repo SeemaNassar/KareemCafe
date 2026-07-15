@@ -3,8 +3,9 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ProductCard } from "./ProductCard";
+import ProductDetailModal from "./ProductDetailModal";
 import { MenuSkeleton } from "../ui/Skeletons";
-import type { Product, Category } from "../../types";
+import type { Product, Category, ProductSummary } from "../../types";
 
 type Props = {
   initialProducts: Product[];
@@ -16,6 +17,7 @@ export default function MenuSection({
   initialCategories,
 }: Props) {
   const [selected, setSelected] = useState<number | null>(null);
+  const [detailProduct, setDetailProduct] = useState<Product | null>(null);
 
   const featured = useMemo(
     () => initialProducts.filter((p) => p.featured),
@@ -40,7 +42,7 @@ export default function MenuSection({
         <CategoryPill
           active={selected === null}
           onClick={() => setSelected(null)}
-          label="All"
+          label="الكل"
         />
         {initialCategories.map((c) => (
           <CategoryPill
@@ -66,7 +68,10 @@ export default function MenuSection({
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
               >
-                <ProductCard product={product} />
+                <ProductCard
+                  product={product}
+                  onOpenDetail={(p: ProductSummary) => setDetailProduct(p as Product)}
+                />
               </motion.div>
             ))}
           </AnimatePresence>
@@ -75,9 +80,14 @@ export default function MenuSection({
 
       {featured.length === 0 && filtered.length === 0 && (
         <div className="text-center text-cream/40 py-20">
-          No items in this category yet.
+          لا يوجد عناصر في هذا التصنيف بعد.
         </div>
       )}
+
+      <ProductDetailModal
+        product={detailProduct}
+        onClose={() => setDetailProduct(null)}
+      />
     </div>
   );
 }

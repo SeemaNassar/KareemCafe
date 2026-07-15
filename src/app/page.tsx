@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import Navbar from "../components/layout/Navbar";
 import HeroSection from "../components/home/HeroSection";
 import AboutSection from "../components/home/AboutSection";
+import BestSellersSection from "../components/home/BestSellersSection";
 import Footer from "../components/layout/Footer";
 import CartButton from "../components/cart/CartButton";
 import CartDrawer from "../components/cart/CartDrawer";
@@ -31,6 +32,10 @@ export default async function Home() {
       <Navbar />
       <HeroSection />
       <AboutSection settings={payload.settings} />
+
+      <Suspense fallback={null}>
+        <BestSellersSection bestSellers={payload.bestSellers} />
+      </Suspense>
 
       <Suspense fallback={<OfferGridSkeleton count={3} />}>
         <OffersSection initialOffers={payload.offers} />
